@@ -1,6 +1,7 @@
+using UnityCommunity.UnitySingleton;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : PersistentMonoSingleton<AudioManager>
 {
     private FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
     private FMOD.Channel[] channels = new FMOD.Channel[2300];
@@ -16,11 +17,6 @@ public class AudioManager : MonoBehaviour
 
             channels[i].setChannelGroup(channelGroup);
         }
-    }
-
-    private void Update()
-    {
-
     }
 
     private void OnApplicationQuit()
