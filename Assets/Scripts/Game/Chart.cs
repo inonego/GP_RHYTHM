@@ -1,19 +1,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "Chart", menuName = "리듬 게임/채보")]
 public class Chart : ScriptableObject
 {
     public new string name;
-    
+
     public string author, genre, description;
 
     public AudioClip music;
 
     public double initialBPM = 120.0;
 
-    [HideInInspector] public List<Sequence> noteSequences = new List<Sequence>();
+    public InputType inputType { get; private set; }
+
+    public Chart(InputType inputType)
+    {
+        this.inputType = inputType;
+
+        SetNoteSequenceListCount((int)inputType);
+    }
+
+    [SerializeField, HideInInspector]
+    private List<Sequence> _noteSequenceList = new List<Sequence>();
+    public IReadOnlyList<Sequence> noteSequenceList => _noteSequenceList;
+
     [HideInInspector] public Sequence bpmChangeSequence = new Sequence();
     [HideInInspector] public Sequence autoPlaySequence = new Sequence();
+
+    private void SetNoteSequenceListCount(int count)
+    {
+        _noteSequenceList.Clear();
+
+        for (int i = 0; i < count; i++)
+        {
+            _noteSequenceList.Add(new Sequence());
+        }
+    }
 
     public Indicator GetIndicator()
     {
@@ -24,7 +47,10 @@ public class Chart : ScriptableObject
     {
         public readonly Chart chart;
 
-        public IReadOnlyList<Sequence.Indicator> iNoteList { get; private set; } = new List<Sequence.Indicator>();
+        [SerializeField, HideInInspector]
+        private List<Sequence.Indicator> _iNoteList = new List<Sequence.Indicator> ();
+        public IReadOnlyList<Sequence.Indicator> iNoteList => _iNoteList;
+
         public Sequence.Indicator iBPMChange { get; private set; }
         public Sequence.Indicator iAutoPlay { get; private set; }
 
@@ -32,12 +58,10 @@ public class Chart : ScriptableObject
         {
             this.chart = chart;
 
-            List<Sequence.Indicator> iNoteList = this.iNoteList as List<Sequence.Indicator>;
-
-            foreach (var sequence in chart.noteSequences)
+            foreach (var sequence in chart._noteSequenceList)
             {
                 // 각 시퀀스 별로 인덱스를 설정합니다.
-                iNoteList.Add(new Sequence.Indicator(sequence));
+                _iNoteList.Add(new Sequence.Indicator(sequence));
             }
 
             iBPMChange = new Sequence.Indicator(chart.bpmChangeSequence);
@@ -50,7 +74,7 @@ public class Chart : ScriptableObject
         /// <param name="beat">기준이 되는 박자입니다.</param>
         public void MoveTo(double beat)
         {
-            foreach (var indicator in iNoteList)
+            foreach (var indicator in _iNoteList)
             {
                 indicator.MoveTo(beat);
             }

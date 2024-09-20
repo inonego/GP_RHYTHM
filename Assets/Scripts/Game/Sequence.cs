@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
+using UnityEngine;
 
 [Serializable]
 public class Sequence
 {
-    public SortedList<GameEvent> events = new SortedList<GameEvent>();
+    [field: SerializeField]
+    public SortedList<GameEvent> events { get; private set; } = new SortedList<GameEvent>();
 
     public Indicator GetIndicator()
     {

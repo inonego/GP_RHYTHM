@@ -1,71 +1,63 @@
 using System;
 using System.Collections;
-using System.Collections.Generic; 
+using System.Collections.Generic;
+using UnityCommunity.UnitySingleton;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
-[Serializable]
-public class Processor : MonoBehaviour
+public class Processor : PersistentMonoSingleton<Processor>
 {
     public Chart chart;
 
-    private enum InputType
-    {
-        KeyDown, KeyUp
-    }
-
-    [Serializable]
-    private class InputQueue : Queue<(InputType type, double time)>
-    {
-        public readonly InputActionReference inputAction;
-
-        public InputQueue(InputActionReference inputAction)
-        {
-            this.inputAction = inputAction;
-        }
-
-        internal void SetEnabled(bool value)
-        {
-            Clear();
-
-            if (value)
-            {
-                inputAction.action.performed += OnKeyDown;
-                inputAction.action.canceled += OnKeyUp;
-            }
-            else
-            {
-                inputAction.action.performed -= OnKeyDown;
-                inputAction.action.canceled -= OnKeyUp;
-            }
-        }
-
-        private void OnKeyDown(InputAction.CallbackContext context)
-        {
-            Enqueue((InputType.KeyDown, AudioManager.Instance.GetCurrentPlayTime(0)));
-        }
-
-        private void OnKeyUp(InputAction.CallbackContext context)
-        {
-            Enqueue((InputType.KeyUp, AudioManager.Instance.GetCurrentPlayTime(0)));
-        }
-    }
-
     private Chart.Indicator indicator;
 
-    private List<InputQueue> inputQueues = new List<InputQueue>();
+    [SerializeField, HideInInspector]
+    private List<InputQueue> _inputQueueList = new List<InputQueue>();
+    public IReadOnlyList<InputQueue> inputQueueList => inputQueueList;
+
+    private void CreateInputQueueList(InputType inputType)
+    {
+        InputBinding inputBinding = InputManager.Instance.inputBindingList[inputType];
+
+        foreach (var inputAction in inputBinding)
+        {
+            _inputQueueList.Add(new InputQueue(inputAction));
+        }
+
+        foreach (var inputQueue in _inputQueueList)
+        {
+            inputQueue.SetEnabled(true);
+        }
+    }
+
+    private void ClearInputQueueList()
+    {
+        foreach (var inputQueue in _inputQueueList)
+        {
+            inputQueue.SetEnabled(false);
+        }
+
+        _inputQueueList.Clear();
+    }
 
     public delegate void OnNoteProcessed(double delta);
 
     public OnNoteProcessed onNoteProcessed;
-    
+
+    private void Start()
+    {
+        Play();
+    }
+
     private void Update()
     {
-        foreach (var inputQueue in inputQueues)
+        if (isPlaying)
         {
-            while (inputQueue.Count > 0)
+            foreach (var inputQueue in _inputQueueList)
             {
-                inputQueue.Dequeue();
+                while (inputQueue.Count > 0)
+                {
+                    double time = inputQueue.Dequeue();
+                }
             }
         }
     }
@@ -76,21 +68,28 @@ public class Processor : MonoBehaviour
     {
         Stop();
 
-        // Ãß°¡
-
-        foreach (var inputQueue in inputQueues)
+        if (chart != null)
         {
-            inputQueue.SetEnabled(true);
+            indicator = chart.GetIndicator();
+
+            //CreateInputQueueList(chart.inputType);
+
+            AudioManager.Instance.Load(0, chart.music);
+
+            AudioManager.Instance.Play(channel: 0, sound: 0);
+
+            isPlaying = true;
         }
     }
+
     public void Stop()
     {
-        if (isPlaying)
-        {
-            foreach (var inputQueue in inputQueues)
-            {
-                inputQueue.SetEnabled(false);
-            }
-        }
+        ClearInputQueueList();
+
+        AudioManager.Instance.Stop(channel: 0);
+
+        AudioManager.Instance.Release(0);
+
+        isPlaying = false;
     }
 }
