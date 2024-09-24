@@ -5,6 +5,7 @@ using System.Collections.Generic;
 /// Do not use Insert() or AddRange() :)
 /// </summary>
 /// <typeparam name="T"></typeparam>
+[Serializable]
 public class SortedList<T> : List<T>
 {
     /// <summary>
@@ -33,7 +34,7 @@ public class SortedList<T> : List<T>
             }
         }
     }
-     
+
     public new void Insert(int index, T item)
     {
         throw new Exception("Do not use Insert!");

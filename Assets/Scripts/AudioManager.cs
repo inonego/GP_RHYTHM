@@ -1,18 +1,24 @@
-using FMOD;
+using FMODUnity;
 using System;
 using System.Runtime.InteropServices;
 using UnityCommunity.UnitySingleton;
+using UnityEditor;
 using UnityEngine;
 
-public class AudioManager : PersistentMonoSingleton<AudioManager>
+public enum SoundType
+{
+    Music
+}
+
+public class AudioManager : MonoSingleton<AudioManager>
 {
     private FMOD.ChannelGroup channelGroup = new FMOD.ChannelGroup();
     private FMOD.Channel[] channels = new FMOD.Channel[2300];
-    private FMOD.Sound[] sounds = new FMOD.Sound[20];
+    private FMOD.Sound[] sounds = new FMOD.Sound[Enum.GetNames(typeof(SoundType)).Length];
 
-    private void Start()
+    protected override void Awake()
     {
-        FMODUnity.RuntimeManager.CoreSystem.getMasterChannelGroup(out channelGroup);
+        RuntimeManager.CoreSystem.getMasterChannelGroup(out channelGroup);
 
         for (int i = 0; i < channels.Length; i++)
         {
@@ -22,61 +28,63 @@ public class AudioManager : PersistentMonoSingleton<AudioManager>
         }
     }
 
-    private void OnApplicationQuit()
+    private void OnDestroy()
     {
         ReleaseAll();
     }
 
-    public void Load(int index, string path, FMOD.MODE mode = FMOD.MODE.CREATESAMPLE)
+    private void Load(SoundType soundType, FMOD.Sound sound)
     {
-        FMOD.RESULT result = FMODUnity.RuntimeManager.CoreSystem.createSound(path, mode, out FMOD.Sound sound);
+        Release(soundType);
 
-        UnityEngine.Debug.Log(result);
-
-        sounds[index] = sound;
+        sounds[(int)soundType] = sound;
     }
 
-    public void Load(int index, AudioClip clip, FMOD.MODE mode = FMOD.MODE.CREATESAMPLE)
+    public void Load(SoundType soundType, string path, FMOD.MODE mode = FMOD.MODE.DEFAULT)
     {
-        float[] samples = new float[clip.samples * clip.channels];
+        FMOD.RESULT result = RuntimeManager.CoreSystem.createSound(path, mode, out FMOD.Sound sound);
 
-        clip.GetData(samples, 0);
+        Load(soundType, sound);
+    }
 
-        uint lenbytes = (uint)(clip.samples * clip.channels * sizeof(float));
+    public void Load(SoundType soundType, AudioClip audioClip, FMOD.MODE mode = FMOD.MODE.DEFAULT)
+    {
+        float[] audioData = new float[audioClip.samples * audioClip.channels];
+        
+        audioClip.GetData(audioData, 0);
+
+        uint lenbytes = (uint)(audioClip.samples * audioClip.channels * sizeof(float));
 
         FMOD.CREATESOUNDEXINFO info = new FMOD.CREATESOUNDEXINFO();
+        info.cbsize = Marshal.SizeOf(typeof(FMOD.CREATESOUNDEXINFO));
+        info.length = lenbytes;                        // PCM 데이터 길이
+        info.numchannels = audioClip.channels;         // 채널 수
+        info.defaultfrequency = audioClip.frequency;   // 샘플링 주파수
+        info.format = FMOD.SOUND_FORMAT.PCMFLOAT;      // PCM float 포맷 설정
 
-        info.length = lenbytes;
-        info.format = FMOD.SOUND_FORMAT.PCMFLOAT;
-        info.defaultfrequency = clip.frequency;
-        info.numchannels = clip.channels;
-
-        FMOD.RESULT result;
         FMOD.Sound sound;
 
-        result = FMODUnity.RuntimeManager.CoreSystem.createSound("", FMOD.MODE.OPENUSER | mode, ref info, out sound);
+        FMOD.RESULT result = RuntimeManager.CoreSystem.createSound("", FMOD.MODE.OPENUSER | mode, ref info, out sound);
 
-        IntPtr ptr1, ptr2;
-        uint len1, len2;
-        
+        IntPtr ptr1, ptr2; uint len1, len2;
+
         result = sound.@lock(0, lenbytes, out ptr1, out ptr2, out len1, out len2);
+        { 
+            Marshal.Copy(audioData, 0, ptr1, (int)(len1 / sizeof(float)));
 
-        Marshal.Copy(samples, 0, ptr1, (int)(len1 / sizeof(float)));
-        
-        if (len2 > 0)
-        {
-            Marshal.Copy(samples, (int)(len1 / sizeof(float)), ptr2, (int)(len2 / sizeof(float)));
-        }
-
+            if (len2 > 0)
+            {
+                Marshal.Copy(audioData, (int)(len1 / sizeof(float)), ptr2, (int)(len2 / sizeof(float)));
+            }
+        } 
         result = sound.unlock(ptr1, ptr2, len1, len2);
-        result = sound.setMode(FMOD.MODE.LOOP_NORMAL);
 
-        sounds[index] = sound;
+        Load(soundType, sound);
     }
 
-    public void Play(int channel, int sound)
+    public void Play(int channel, SoundType soundType)
     {
-        FMODUnity.RuntimeManager.CoreSystem.playSound(sounds[sound], channelGroup, false, out channels[channel]);
+        RuntimeManager.CoreSystem.playSound(sounds[(int)soundType], channelGroup, false, out channels[channel]);
     }
 
     public void Stop(int channel)
@@ -86,9 +94,9 @@ public class AudioManager : PersistentMonoSingleton<AudioManager>
         if (isPlaying) channels[channel].stop();
     }
 
-    public void Release(int sound)
+    public void Release(SoundType soundType)
     {
-        sounds[sound].release();
+        sounds[(int)soundType].release();
     }
 
     public void ReleaseAll()

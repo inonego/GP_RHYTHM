@@ -6,56 +6,82 @@ using UnityCommunity.UnitySingleton;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public enum InputType
+public enum InputBindingType
 {
     KEY4 = 4
 }
 
-[Serializable]
-public class InputQueue : Queue<double>
+public enum InputType
 {
-    public readonly InputActionReference inputAction;
+    KeyUp, KeyDown
+}
 
-    public InputQueue(InputActionReference inputAction)
+public struct InputDATA
+{
+    public InputAction InputAction;
+    public InputType Type;
+    public double Time;
+
+    public InputDATA(InputAction inputAction, InputType type, double time)
     {
-        this.inputAction = inputAction;
-    }
-
-    internal void SetEnabled(bool value)
-    {
-        Clear();
-
-        if (value)
-        {
-            inputAction.action.performed += OnKeyDown;
-            inputAction.action.canceled += OnKeyUp;
-        }
-        else
-        {
-            inputAction.action.performed -= OnKeyDown;
-            inputAction.action.canceled -= OnKeyUp;
-        }
-    }
-
-    private void OnKeyDown(InputAction.CallbackContext context)
-    {
-        Enqueue(+AudioManager.Instance.GetCurrentPlayTime(0));
-    }
-
-    private void OnKeyUp(InputAction.CallbackContext context)
-    {
-        Enqueue(-AudioManager.Instance.GetCurrentPlayTime(0));
+        InputAction = inputAction;
+        Type = type;
+        Time = time;
     }
 }
 
 [Serializable]
-public class InputBinding : List<InputActionReference> { }
+public class InputQueue : Queue<InputDATA>
+{
+    private List<InputAction> inputActionList = new List<InputAction>();
+    public IReadOnlyList<InputAction> InputActionList => inputActionList;
 
-public class InputManager : PersistentMonoSingleton<InputManager>
+    public void Bind(InputAction inputAction)
+    {
+        inputActionList.Add(inputAction);
+
+        inputAction.performed += OnKeyDown;
+        inputAction.canceled += OnKeyUp;
+    }
+
+    internal void ReleaseAll()
+    {
+        foreach (var inputAction in inputActionList)
+        {
+            inputAction.performed -= OnKeyDown;
+            inputAction.canceled -= OnKeyUp;
+        }
+
+        inputActionList.Clear();
+    }
+
+    private void OnKeyDown(InputAction.CallbackContext context)
+    {
+        InputDATA inputDATA = new InputDATA(context.action, InputType.KeyDown, AudioManager.Instance.GetCurrentPlayTime(channel: 0));
+
+        Enqueue(inputDATA);
+    }
+
+    private void OnKeyUp(InputAction.CallbackContext context)
+    {
+        InputDATA inputDATA = new InputDATA(context.action, InputType.KeyDown, AudioManager.Instance.GetCurrentPlayTime(channel: 0));
+
+        Enqueue(inputDATA);
+    }
+}
+
+[Serializable]
+public class InputBinding {
+
+    [field: SerializeField]
+    public List<InputActionReference> InputActionList { get; private set; } = new List<InputActionReference>();
+}
+
+public class InputManager : MonoSingleton<InputManager>
 {
     /// <summary>
     /// 키 입력 수에 따라 다른 입력 바인딩을 지정합니다.
     /// </summary>
     [field: SerializeField]
-    public SerializedDictionary<InputType, InputBinding> inputBindingList { get; private set; } = new SerializedDictionary<InputType, InputBinding>();
+    public SerializedDictionary<InputBindingType, InputBinding> InputBindingList { get; private set; } = new SerializedDictionary<InputBindingType, InputBinding>();
 }
