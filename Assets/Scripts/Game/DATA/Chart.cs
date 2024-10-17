@@ -131,6 +131,18 @@ public class Chart : ScriptableObject
 
     #region 유틸 메서드
 
+    public int GetTotalNoteEventCount()
+    {
+        int sum = 0;
+
+        for (int i = 0; i < SQListNote.Count; i++)
+        {
+            sum += SQListNote[i].Events.Count;
+        }
+
+        return sum;
+    }
+
     /// <summary>
     /// 시간을 비트로 변환합니다.
     /// </summary>

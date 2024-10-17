@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityCommunity.UnitySingleton;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [Serializable]
 public class NoteQueue : Queue<Note> { }
@@ -16,15 +17,21 @@ public class NoteManager : MonoSingleton<NoteManager>
 
     public Vector3 Offset;
     public float Space = 1f;
-    public float Speed = 1f;
+
 
     public double DespawnTime = 1f;
 
     public double CurrentPlayTime { get; private set; }
 
-    [SerializeField] private List<KeyEffect> KeyEffectList;
-
     private List<Note> spawned = new List<Note>();
+
+    [Header("Speed")]
+    public float UnitPerSecond = 1f;
+
+    public float Speed = 1f;
+
+    [SerializeField] private InputActionReference speedUInputAction;
+    [SerializeField] private InputActionReference speedDInputAction;
 
     private Pool pool;
 
@@ -37,8 +44,23 @@ public class NoteManager : MonoSingleton<NoteManager>
         pool = GetComponent<Pool>();
     }
 
+    private void Start()
+    {
+        Processor.Instance.NoteSpawnFunc = Spawn;
+    }
+
     private void Update()
     {
+        if (speedUInputAction.action.WasPressedThisFrame())
+        {
+            Speed = Mathf.Clamp(Speed + 0.1f, 1f, 10f);
+        }
+
+        if (speedDInputAction.action.WasPressedThisFrame())
+        {
+            Speed = Mathf.Clamp(Speed - 0.1f, 1f, 10f);
+        }
+
         AutoDespawn();
     }
 
@@ -80,7 +102,7 @@ public class NoteManager : MonoSingleton<NoteManager>
 
     public Vector3 GetPosition(int index, double time)
     {
-        return new Vector3((index - ((int)InputType - 1) * 0.5f) * Space, (float)((time - CurrentPlayTime) * Speed), 0f) + Offset;
+        return new Vector3((index - ((int)InputType - 1) * 0.5f) * Space, (float)((time - CurrentPlayTime) * UnitPerSecond * Speed), 0f) + Offset;
     }
 
     /// <summary>

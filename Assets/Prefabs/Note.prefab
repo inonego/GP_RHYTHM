@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.2, z: 1}
+  m_LocalScale: {x: 1, y: 0.35, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5410055543702032479}
@@ -134,10 +134,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeGO: {fileID: 3835673938144728383}
   longGO: {fileID: 7273474186395345427}
-  EnabledColor: {r: 0.70881367, g: 0, b: 1, a: 1}
-  DisabledColor: {r: 0.35318187, g: 0.25131518, b: 0.61006284, a: 1}
-  LongEnabledColor: {r: 1, g: 1, b: 1, a: 0.5529412}
-  LongDisabledColor: {r: 0.5660378, g: 0.5660378, b: 0.5660378, a: 0.59607846}
+  EnabledColor: {r: 0, g: 1, b: 0.90656495, a: 1}
+  DisabledColor: {r: 0.4773941, g: 0.5769554, b: 0.6792453, a: 1}
+  LongEnabledColor: {r: 0.2251691, g: 0.72646666, b: 0.8679245, a: 0.5529412}
+  LongDisabledColor: {r: 0.40837488, g: 0.61614907, b: 0.6509434, a: 0.59607846}
 --- !u!1 &7273474186395345427
 GameObject:
   m_ObjectHideFlags: 0

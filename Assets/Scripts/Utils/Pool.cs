@@ -103,7 +103,7 @@ public static class PoolUtil
         }
         else
         {
-            throw new Exception();
+            MonoBehaviour.Destroy(GO);
         }
     }
 }

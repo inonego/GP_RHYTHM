@@ -19,7 +19,7 @@ public class Note : MonoBehaviour
     public double Time { get; private set; } = 0.0;
     public double Length { get; private set; } = 0.0;
 
-    public bool IsLong => Length > 0;
+    public bool IsLong => Length > 0.0;
 
     public bool IsWorking { get; private set; }
 
@@ -43,8 +43,8 @@ public class Note : MonoBehaviour
 
         transform.position = manager.GetPosition(Index, Time);
 
-        longGO.transform.localPosition  = new Vector3(0f, (float)Length * manager.Speed * 0.5f, 0f);
-        longGO.transform.localScale     = new Vector3(1f, (float)Length * manager.Speed, 1f);
+        longGO.transform.localPosition  = new Vector3(0f, (float)Length * manager.UnitPerSecond * manager.Speed * 0.5f, 0f);
+        longGO.transform.localScale     = new Vector3(1f, (float)Length * manager.UnitPerSecond * manager.Speed, 1f);
     }
 
     public void Init(int index, double time, double length)
