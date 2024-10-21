@@ -51,7 +51,7 @@ public class Judger : MonoSingleton<Judger>
     public double GetLongClearedCriteriaTime(Note note)
     {
         // 노트의 끝에서 JudgeTime만큼의 여유를 가지는 시간이 기준이 됩니다.
-        return note.Time + note.Length - JudgeTime;
+        return note.Time + note.Duration - JudgeTime;
     }
 
     /// <summary>

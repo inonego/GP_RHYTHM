@@ -22,7 +22,7 @@ public partial class TimeCounter
         time = counter = t;
 
         this.useFixedDeltaTime = useFixedDeltaTime;
-    } 
+    }
 
     public void Stop()
     {

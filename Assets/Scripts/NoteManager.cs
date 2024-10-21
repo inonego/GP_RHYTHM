@@ -18,17 +18,16 @@ public class NoteManager : MonoSingleton<NoteManager>
     public Vector3 Offset;
     public float Space = 1f;
 
-
     public double DespawnTime = 1f;
 
     public double CurrentPlayTime { get; private set; }
+    public float  CurrentPosition { get; private set; }
 
     private List<Note> spawned = new List<Note>();
 
     [Header("Speed")]
     public float UnitPerSecond = 1f;
-
-    public float Speed = 1f;
+    public float UserSpeed = 1f;
 
     [SerializeField] private InputActionReference speedUInputAction;
     [SerializeField] private InputActionReference speedDInputAction;
@@ -53,12 +52,12 @@ public class NoteManager : MonoSingleton<NoteManager>
     {
         if (speedUInputAction.action.WasPressedThisFrame())
         {
-            Speed = Mathf.Clamp(Speed + 0.1f, 1f, 10f);
+            UserSpeed = Mathf.Clamp(UserSpeed + 0.1f, 1f, 10f);
         }
 
         if (speedDInputAction.action.WasPressedThisFrame())
         {
-            Speed = Mathf.Clamp(Speed - 0.1f, 1f, 10f);
+            UserSpeed = Mathf.Clamp(UserSpeed - 0.1f, 1f, 10f);
         }
 
         AutoDespawn();
@@ -68,7 +67,7 @@ public class NoteManager : MonoSingleton<NoteManager>
 
     #region 노트 처리 메서드
 
-    public Note Spawn(int index, double time, double length)
+    public Note Spawn(int index, double time, double duration, float position, float length)
     {
         GameObject GO = pool.Spawn();
 
@@ -76,11 +75,16 @@ public class NoteManager : MonoSingleton<NoteManager>
         Note note = GO.GetComponent<Note>();
 
         // 노트의 인덱스와 시간을 설정합니다.
-        note.Init(index, time, length);
+        note.Init(index, time, duration, position, length);
 
         spawned.Add(note);
 
         return note;
+    }
+
+    public void DespawnAll()
+    {
+        pool.DespawnAll();
     }
 
     private void AutoDespawn()
@@ -89,7 +93,7 @@ public class NoteManager : MonoSingleton<NoteManager>
 
         foreach (var note in spawned)
         {
-            if (note.Time + note.Length + DespawnTime <= CurrentPlayTime)
+            if (note.Time + note.Duration + DespawnTime <= CurrentPlayTime)
             {
                 note.gameObject.Despawn();
 
@@ -100,9 +104,12 @@ public class NoteManager : MonoSingleton<NoteManager>
         if (remove != null) remove.Invoke();
     }
 
-    public Vector3 GetPosition(int index, double time)
+    public void SetTransform(Note note)
     {
-        return new Vector3((index - ((int)InputType - 1) * 0.5f) * Space, (float)((time - CurrentPlayTime) * UnitPerSecond * Speed), 0f) + Offset;
+        note.transform.position = new Vector3((note.Index - ((int)InputType - 1) * 0.5f) * Space, (note.Position - CurrentPosition) * UnitPerSecond * UserSpeed, 0f) + Offset;
+
+        note.longGO.transform.localPosition = new Vector3(0f, (float)note.Length * UnitPerSecond * UserSpeed * 0.5f, 0f);
+        note.longGO.transform.localScale    = new Vector3(1f, (float)note.Length * UnitPerSecond * UserSpeed, 1f);
     }
 
     /// <summary>
@@ -115,12 +122,21 @@ public class NoteManager : MonoSingleton<NoteManager>
     }
 
     /// <summary>
-    /// 현재 재생 시간 위치를 설정합니다.
+    /// 현재 재생 시간을 설정합니다.
     /// </summary>
-    /// <param name="currentPlayTime">설정할 현재 재생 시간 위치입니다.</param>
+    /// <param name="currentPlayTime">설정할 현재 재생 시간입니다.</param>
     public void SetCurrentPlayTime(double currentPlayTime)
     {
         CurrentPlayTime = currentPlayTime;
+    }
+
+    /// <summary>
+    /// 현재 위치를 설정합니다.
+    /// </summary>
+    /// <param name="currentPosition">설정할 현재 위치입니다.</param>
+    public void SetCurrentPosition(float currentPosition)
+    {
+        CurrentPosition = currentPosition;
     }
 
     #endregion

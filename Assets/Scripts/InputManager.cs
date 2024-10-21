@@ -57,14 +57,14 @@ public class InputQueue : Queue<InputDATA>
 
     private void OnKeyDown(InputAction.CallbackContext context)
     {
-        InputDATA inputDATA = new InputDATA(context.action, InputType.KeyDown, AudioManager.Instance.GetCurrentPlayTime(channel: 0));
+        InputDATA inputDATA = new InputDATA(context.action, InputType.KeyDown, AudioManager.Instance.GetMusicCurrentPlayTime());
 
         Enqueue(inputDATA);
     }
 
     private void OnKeyUp(InputAction.CallbackContext context)
     {
-        InputDATA inputDATA = new InputDATA(context.action, InputType.KeyUp, AudioManager.Instance.GetCurrentPlayTime(channel: 0));
+        InputDATA inputDATA = new InputDATA(context.action, InputType.KeyUp, AudioManager.Instance.GetMusicCurrentPlayTime());
 
         Enqueue(inputDATA);
     }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Chart : ScriptableObject
 {
@@ -77,7 +78,7 @@ public class Chart : ScriptableObject
 
     [SerializeField, HideInInspector] private List<Sequence<NoteEvent>> _SQListNote = new List<Sequence<NoteEvent>>();
     [SerializeField, HideInInspector] private Sequence<BPMChangeEvent> _SQBPMChange = new Sequence<BPMChangeEvent>();
-    [SerializeField, HideInInspector] private Sequence<AutoPlayEvent> _SQAutoPlay = new Sequence<AutoPlayEvent>();
+    [SerializeField, HideInInspector] private Sequence<SpeedChangeEvent> _SQSpeedChange = new Sequence<SpeedChangeEvent>();
 
     /// <summary>
     /// 노트 이벤트에 대한 시퀀스 목록입니다.
@@ -88,9 +89,9 @@ public class Chart : ScriptableObject
     /// </summary>
     public Sequence<BPMChangeEvent> SQBPMChange => _SQBPMChange;
     /// <summary>
-    /// 자동 플레이 이벤트에 대한 시퀀스입니다.
+    /// 속도 변경 이벤트에 대한 시퀀스입니다.
     /// </summary>
-    public Sequence<AutoPlayEvent> SQAutoPlay => _SQAutoPlay;
+    public Sequence<SpeedChangeEvent> SQSpeedChange => _SQSpeedChange;
 
     #endregion
 
@@ -141,6 +142,27 @@ public class Chart : ScriptableObject
         }
 
         return sum;
+    }
+
+    public float GetPosition(double beat)
+    {
+        double position = beat;
+        float previousSpeed = 1f;
+
+        foreach (SpeedChangeEvent e in SQSpeedChange.Events)
+        {
+            double eventBeat = e.Beat;
+
+            if (eventBeat > beat)
+            {
+                break;
+            }
+
+            position += (e.Speed - previousSpeed) * (beat - eventBeat);
+            previousSpeed = e.Speed;
+        }
+        
+        return (float)(ConvertBeatToTime(position));
     }
 
     /// <summary>

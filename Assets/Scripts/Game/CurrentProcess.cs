@@ -6,7 +6,7 @@ using UnityEngine;
 public delegate void KeyEvent(int index, InputDATA inputDATA);
 public delegate void NoteProcessEvent(int index, NoteProcessDATA noteProcessDATA);
 public delegate void LongProcessEvent(int index, LongProcessDATA longProcessDATA);
-public delegate Note NoteSpawnDelegate(int index, double time, double length);
+public delegate Note NoteSpawnDelegate(int index, double time, double duration, float position, float length);
 
 [Serializable]
 public class CurrentProcess
@@ -22,9 +22,9 @@ public class CurrentProcess
 
     public bool IsPlaying               { get; private set; } = false;
 
-    public double CurrentPlayTime => AudioManager.Instance.GetCurrentPlayTime(0) - playDelayCounter.GetTimeLeft();
-
-    private TimeCounter playDelayCounter = new TimeCounter();
+    public float  CurrentPosition { get; private set; }
+    public double CurrentPlayBeat { get; private set; }
+    public double CurrentPlayTime => AudioManager.Instance.GetMusicCurrentPlayTime();
 
     private float scoreSum = 0f;
     private int processedCount = 0;
@@ -63,37 +63,6 @@ public class CurrentProcess
 
             lineList.Add(processLine);
         }
-
-        // 임시로 랜덤 노트 생성
-        {
-            Chart.SQListNote[0].Events.Clear();
-            Chart.SQListNote[1].Events.Clear();
-            Chart.SQListNote[2].Events.Clear();
-            Chart.SQListNote[3].Events.Clear();
-
-            for (int i = 0; i < 1024; i++)
-            {
-                NoteEvent noteEvent = new NoteEvent();
-
-                noteEvent.Beat = i * 0.5f;
-
-                noteEvent.Duration = UnityEngine.Random.Range(0f, 1f) < 0.8f ? 0f : 0.25f;
-
-                if (UnityEngine.Random.Range(0f, 1f) > 0.7f) Chart.SQListNote[0].Events.Add(noteEvent);
-                if (UnityEngine.Random.Range(0f, 1f) > 0.7f) Chart.SQListNote[1].Events.Add(noteEvent);
-                if (UnityEngine.Random.Range(0f, 1f) > 0.7f) Chart.SQListNote[2].Events.Add(noteEvent);
-            }
-
-            for (int i = 0; i < 256; i++)
-            {
-                NoteEvent noteEvent = new NoteEvent();
-
-                noteEvent.Beat = i * 8f;
-                noteEvent.Duration = 4f;
-
-                Chart.SQListNote[3].Events.Add(noteEvent);
-            }
-        }
     }
 
     public void Release()
@@ -110,32 +79,24 @@ public class CurrentProcess
 
     #region 재생 및 중지
 
-    public void Play(float playDelayTime)
+    public void Play()
     {
         Stop();
 
         // 오디오 관련 처리
-        AudioManager.Instance.Load(SoundType.Music, Chart.Music, mode: FMOD.MODE.ACCURATETIME);
-
-        // 노트 관련 처리
-        playDelayCounter.Start(playDelayTime);
+        FMOD.Sound music = AudioManager.Instance.LoadSound(Chart.Music, mode: FMOD.MODE.ACCURATETIME);
+        AudioManager.Instance.LoadMusic(music);
+        AudioManager.Instance.PlayMusic();
 
         // 플래그 설정
         IsPlaying = true;
     }
 
-    private void Play()
-    {
-        AudioManager.Instance.Play(channel: 0, SoundType.Music);
-    }
-
     public void Stop()
     {
         // 오디오 관련 처리
-        AudioManager.Instance.Stop(channel: 0);
-        AudioManager.Instance.Release(SoundType.Music);
-
-        playDelayCounter.Stop();
+        AudioManager.Instance.StopMusic();
+        AudioManager.Instance.ReleaseMusic();
 
         // 플래그 설정
         IsPlaying = false;
@@ -191,32 +152,33 @@ public class CurrentProcess
         double noteTime      = Chart.ConvertBeatToTime(noteEvent.Beat);
         double noteEndTime   = Chart.ConvertBeatToTime(noteEvent.Beat + noteEvent.Duration);
 
-        double length = noteEndTime - noteTime;
+        double duration = noteEndTime - noteTime;
+
+        // 노트의 시작 / 끝 위치입니다.
+        float notePosition       = Chart.GetPosition(noteEvent.Beat);
+        float noteEndPosition    = Chart.GetPosition(noteEvent.Beat + noteEvent.Duration);
+
+        float length = noteEndPosition - notePosition;
 
         // 노트를 스폰합니다.
-        return NoteSpawnFunc(currentIndex, noteTime, noteEvent.isLong ? length : 0.0);
+        return NoteSpawnFunc(currentIndex, noteTime, noteEvent.isLong ? duration : 0.0, notePosition, noteEvent.isLong ? length : 0f);
     }
 
     public void Process(double ProcessBeatDuration)
     {
-        playDelayCounter.Update();
-
         if (IsPlaying)
-        {
-            if (playDelayCounter.WasEndedThisFrame())
-            {
-                Play();
-            }
-
+        { 
             // 현재 재생 시간을 비트로 변환합니다.
-            double currentBeat = Chart.ConvertTimeToBeat(CurrentPlayTime);
+            CurrentPlayBeat = Chart.ConvertTimeToBeat(CurrentPlayTime);
+            // 현재 재생 비트를 위치로 변환합니다.
+            CurrentPosition = Chart.GetPosition(CurrentPlayBeat);
 
             for (int index = 0; index < (int)Chart.InputType; index++)
             {
                 // 현재 인덱스를 설정합니다.
                 currentIndex = index;
 
-                lineList[index].ProcessSpawn(currentBeat + ProcessBeatDuration);
+                lineList[index].ProcessSpawn(CurrentPlayBeat + ProcessBeatDuration);
                 lineList[index].ProcessJudge(CurrentPlayTime);
             }
         }

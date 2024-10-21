@@ -74,6 +74,14 @@ public class Pool : MonoBehaviour
         // 게임 오브젝트 상태 설정
         GO.transform.SetParent(transform);
         GO.SetActive(false);
+    } 
+
+    internal void DespawnAll()
+    {
+        while (spawned.Count > 0)
+        {
+            Despawn(spawned[0]);
+        }
     }
 }
 

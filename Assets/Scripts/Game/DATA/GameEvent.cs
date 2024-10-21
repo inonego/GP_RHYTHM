@@ -47,7 +47,13 @@ public class BPMChangeEvent : GameEvent
 }
 
 /// <summary>
-/// 자동 플레이에 대한 이벤트입니다.
+/// 속도 변경에 대한 이벤트입니다.
 /// </summary>
 [Serializable]
-public class AutoPlayEvent : GameEvent { }
+public class SpeedChangeEvent : GameEvent
+{
+    /// <summary>
+    /// 이벤트가 처리되도록 하는 속도를 설정하는 값입니다.
+    /// </summary>
+    public float Speed;
+}

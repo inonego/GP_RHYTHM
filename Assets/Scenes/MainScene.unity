@@ -311,7 +311,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a8722388f3483d41ac7641a387b5918, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayDelayTime: 2
   ProcessBeatDuration: 16
 --- !u!114 &164581906
 MonoBehaviour:
@@ -1243,7 +1242,7 @@ MonoBehaviour:
   Space: 1.1
   DespawnTime: 1
   UnitPerSecond: 3
-  Speed: 6
+  UserSpeed: 6
   speedUInputAction: {fileID: -6662846727247892129, guid: 4d10137657da3024299d0009262df938, type: 3}
   speedDInputAction: {fileID: -4427354101188784952, guid: 4d10137657da3024299d0009262df938, type: 3}
 --- !u!114 &829272240
@@ -1771,6 +1770,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94320d1a0521d74479df8d391ecb3310, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PreDelayTime: 2
+  EndDelayTime: 5
 --- !u!1 &1096628765
 GameObject:
   m_ObjectHideFlags: 0

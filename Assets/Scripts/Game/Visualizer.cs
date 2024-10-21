@@ -35,7 +35,7 @@ public class Visualizer : MonoSingleton<Visualizer>
             RateUI.text = string.Format("{0:#00.00}%", Processor.Instance.Current.Rate);
         }
 
-        SpeedUI.text = string.Format("x {0:#0.0}", NoteManager.Instance.Speed);
+        SpeedUI.text = string.Format("x {0:#0.0}", NoteManager.Instance.UserSpeed);
     }
 
     private void OnKeyEvent(int index, InputDATA inputDATA)
@@ -57,7 +57,6 @@ public class Visualizer : MonoSingleton<Visualizer>
         int i = Mathf.RoundToInt((float)((delta + 1.0) * 0.5 * (count - 1)));
 
         JudgeEffectList[i].Play();
-
     }
 
     private void OnNoteProcess(int index, NoteProcessDATA noteProcessDATA)

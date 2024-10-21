@@ -6,8 +6,8 @@ using UnityEngine;
 public class Note : MonoBehaviour
 {
     [Header("General")]
-    [SerializeField] private GameObject timeGO;
-    [SerializeField] private GameObject longGO;
+    [SerializeField] internal GameObject timeGO;
+    [SerializeField] internal GameObject longGO;
 
     [Header("Color")]
     public Color EnabledColor = Color.white;
@@ -17,9 +17,11 @@ public class Note : MonoBehaviour
 
     public int Index { get; private set; } = 0;
     public double Time { get; private set; } = 0.0;
-    public double Length { get; private set; } = 0.0;
+    public double Duration { get; private set; } = 0.0;
+    public float Position { get; private set; } = 0f;
+    public float Length { get; private set; } = 0f;
 
-    public bool IsLong => Length > 0.0;
+    public bool IsLong => Duration > 0.0;
 
     public bool IsWorking { get; private set; }
 
@@ -39,19 +41,12 @@ public class Note : MonoBehaviour
 
     private void Update()
     {
-        NoteManager manager = NoteManager.Instance;
-
-        transform.position = manager.GetPosition(Index, Time);
-
-        longGO.transform.localPosition  = new Vector3(0f, (float)Length * manager.UnitPerSecond * manager.Speed * 0.5f, 0f);
-        longGO.transform.localScale     = new Vector3(1f, (float)Length * manager.UnitPerSecond * manager.Speed, 1f);
+        NoteManager.Instance.SetTransform(this);
     }
 
-    public void Init(int index, double time, double length)
+    public void Init(int index, double time, double duration, float position, float length)
     {
-        Index = index;
-        Time = time;
-        Length = length;
+        Index = index; Time = time; Duration = duration; Position = position; Length = length;
 
         Update();
     }

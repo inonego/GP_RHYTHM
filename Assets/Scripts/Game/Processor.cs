@@ -10,8 +10,6 @@ public class Processor : MonoSingleton<Processor>
 
     public CurrentProcess Current { get; private set; }
 
-    public float PlayDelayTime = 2.0f;
-
     public double ProcessBeatDuration = 16.0;
 
     public KeyEvent OnKeyEvent;
@@ -22,6 +20,11 @@ public class Processor : MonoSingleton<Processor>
     #endregion
 
     #region 유니티 이벤트 메서드
+
+    private void Start()
+    {
+        AudioManager.Instance.OnMusicEnded += OnMusicEnded;
+    }
 
     private void Update()
     {
@@ -45,7 +48,7 @@ public class Processor : MonoSingleton<Processor>
         Current.OnLongProcess += OnLongProcess;
         Current.NoteSpawnFunc  = NoteSpawnFunc;
 
-        Current.Play(PlayDelayTime);
+        Current.Play();
 
         NoteManager.Instance.SetInputType(chart.InputType);
     }
@@ -63,6 +66,8 @@ public class Processor : MonoSingleton<Processor>
         if (Current != null)
         {
             Current.Release();
+
+            NoteManager.Instance.DespawnAll();
         }
 
         Current = null;
@@ -79,7 +84,18 @@ public class Processor : MonoSingleton<Processor>
             Current.Process(ProcessBeatDuration);
 
             NoteManager.Instance.SetCurrentPlayTime(Current.CurrentPlayTime);
+            NoteManager.Instance.SetCurrentPosition(Current.CurrentPosition);
         }
+    }
+
+    private void OnMusicEnded()
+    {
+        if (Current != null)
+        {
+            Debug.Log("Done!");
+        }
+
+        Release();
     }
 
     #endregion
