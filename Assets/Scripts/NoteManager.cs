@@ -67,7 +67,7 @@ public class NoteManager : MonoSingleton<NoteManager>
 
     #region 노트 처리 메서드
 
-    public Note Spawn(int index, double time, double duration, float position, float length)
+    public Note Spawn(int index, double time, double length, float position, float size)
     {
         GameObject GO = pool.Spawn();
 
@@ -75,7 +75,7 @@ public class NoteManager : MonoSingleton<NoteManager>
         Note note = GO.GetComponent<Note>();
 
         // 노트의 인덱스와 시간을 설정합니다.
-        note.Init(index, time, duration, position, length);
+        note.Init(index, time, length, position, size);
 
         spawned.Add(note);
 
@@ -93,7 +93,7 @@ public class NoteManager : MonoSingleton<NoteManager>
 
         foreach (var note in spawned)
         {
-            if (note.Time + note.Duration + DespawnTime <= CurrentPlayTime)
+            if (note.Time + note.Length + DespawnTime <= CurrentPlayTime)
             {
                 note.gameObject.Despawn();
 
@@ -108,8 +108,8 @@ public class NoteManager : MonoSingleton<NoteManager>
     {
         note.transform.position = new Vector3((note.Index - ((int)InputType - 1) * 0.5f) * Space, (note.Position - CurrentPosition) * UnitPerSecond * UserSpeed, 0f) + Offset;
 
-        note.longGO.transform.localPosition = new Vector3(0f, (float)note.Length * UnitPerSecond * UserSpeed * 0.5f, 0f);
-        note.longGO.transform.localScale    = new Vector3(1f, (float)note.Length * UnitPerSecond * UserSpeed, 1f);
+        note.longGO.transform.localPosition = new Vector3(0f, (float)note.Size * UnitPerSecond * UserSpeed * 0.5f, 0f);
+        note.longGO.transform.localScale    = new Vector3(1f, (float)note.Size * UnitPerSecond * UserSpeed, 1f);
     }
 
     /// <summary>

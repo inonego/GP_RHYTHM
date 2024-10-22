@@ -17,11 +17,11 @@ public class Note : MonoBehaviour
 
     public int Index { get; private set; } = 0;
     public double Time { get; private set; } = 0.0;
-    public double Duration { get; private set; } = 0.0;
+    public double Length { get; private set; } = 0.0;
     public float Position { get; private set; } = 0f;
-    public float Length { get; private set; } = 0f;
+    public float Size { get; private set; } = 0f;
 
-    public bool IsLong => Duration > 0.0;
+    public bool IsLong => Length > 0.0;
 
     public bool IsWorking { get; private set; }
 
@@ -44,9 +44,9 @@ public class Note : MonoBehaviour
         NoteManager.Instance.SetTransform(this);
     }
 
-    public void Init(int index, double time, double duration, float position, float length)
+    public void Init(int index, double time, double length, float position, float size)
     {
-        Index = index; Time = time; Duration = duration; Position = position; Length = length;
+        Index = index; Time = time; Length = length; Position = position; Size = size;
 
         Update();
     }

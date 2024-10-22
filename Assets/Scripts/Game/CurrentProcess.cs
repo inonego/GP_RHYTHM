@@ -3,10 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void ProcessEvent();
+
 public delegate void KeyEvent(int index, InputDATA inputDATA);
 public delegate void NoteProcessEvent(int index, NoteProcessDATA noteProcessDATA);
 public delegate void LongProcessEvent(int index, LongProcessDATA longProcessDATA);
-public delegate Note NoteSpawnDelegate(int index, double time, double duration, float position, float length);
+public delegate Note NoteSpawnDelegate(int index, double time, double length, float position, float size);
 
 [Serializable]
 public class CurrentProcess
@@ -20,7 +22,7 @@ public class CurrentProcess
     public int CurrentCombo             { get; private set; }
     public float CurrentProcessScore    { get; private set; }
 
-    public bool IsPlaying               { get; private set; } = false;
+    public bool IsPlaying               { get; private set; }
 
     public float  CurrentPosition { get; private set; }
     public double CurrentPlayBeat { get; private set; }
@@ -35,10 +37,16 @@ public class CurrentProcess
 
     private List<ProcessLine> lineList = new List<ProcessLine>();
 
+    public ProcessEvent OnProcessEnded;
+
     public KeyEvent OnKeyEvent;
     public NoteProcessEvent OnNoteProcess;
     public LongProcessEvent OnLongProcess;
     public NoteSpawnDelegate NoteSpawnFunc;
+
+    private FMOD.Sound music;
+
+    private bool isReleased;
 
     #endregion
 
@@ -63,16 +71,34 @@ public class CurrentProcess
 
             lineList.Add(processLine);
         }
+
+        // 오디오 관련 처리
+        music = AudioManager.Instance.LoadSound(Chart.Music, mode: FMOD.MODE.ACCURATETIME);
+
+        // 플래그 설정
+        IsPlaying  = false;
+        isReleased = false;
     }
 
     public void Release()
     {
+        Chart.ClearCache();
+
         foreach (var line in lineList)
         {
             line.Release();
         }
 
         lineList.Clear();
+
+        // 오디오 관련 처리
+        music.release();
+
+        AudioManager.Instance.OnMusicEnded -= OnMusicEnded;
+
+        // 플래그 설정
+        IsPlaying = false;
+        isReleased = true;
     }
 
     #endregion
@@ -83,10 +109,13 @@ public class CurrentProcess
     {
         Stop();
 
+        Chart.MakeCache();
+
         // 오디오 관련 처리
-        FMOD.Sound music = AudioManager.Instance.LoadSound(Chart.Music, mode: FMOD.MODE.ACCURATETIME);
         AudioManager.Instance.LoadMusic(music);
         AudioManager.Instance.PlayMusic();
+
+        AudioManager.Instance.OnMusicEnded += OnMusicEnded;
 
         // 플래그 설정
         IsPlaying = true;
@@ -96,7 +125,6 @@ public class CurrentProcess
     {
         // 오디오 관련 처리
         AudioManager.Instance.StopMusic();
-        AudioManager.Instance.ReleaseMusic();
 
         // 플래그 설정
         IsPlaying = false;
@@ -149,19 +177,24 @@ public class CurrentProcess
     private Note _NoteSpawnFunc(NoteEvent noteEvent)
     {
         // 노트의 시작 / 끝 시간입니다.
-        double noteTime      = Chart.ConvertBeatToTime(noteEvent.Beat);
-        double noteEndTime   = Chart.ConvertBeatToTime(noteEvent.Beat + noteEvent.Duration);
+        double noteTime      = noteEvent.CachedTime;
+        double noteEndTime   = noteEvent.CachedTime + noteEvent.CachedLength;
 
-        double duration = noteEndTime - noteTime;
+        double length = noteEndTime - noteTime;
 
         // 노트의 시작 / 끝 위치입니다.
-        float notePosition       = Chart.GetPosition(noteEvent.Beat);
-        float noteEndPosition    = Chart.GetPosition(noteEvent.Beat + noteEvent.Duration);
+        float notePosition       = Chart.GetPosition(noteTime);
+        float noteEndPosition    = Chart.GetPosition(noteEndTime);
 
-        float length = noteEndPosition - notePosition;
+        float size = noteEndPosition - notePosition;
 
         // 노트를 스폰합니다.
-        return NoteSpawnFunc(currentIndex, noteTime, noteEvent.isLong ? duration : 0.0, notePosition, noteEvent.isLong ? length : 0f);
+        return NoteSpawnFunc(currentIndex, noteTime, noteEvent.isLong ? length : 0.0, notePosition, noteEvent.isLong ? size : 0f);
+    }
+
+    private void OnMusicEnded()
+    {
+        OnProcessEnded();
     }
 
     public void Process(double ProcessBeatDuration)
@@ -171,7 +204,7 @@ public class CurrentProcess
             // 현재 재생 시간을 비트로 변환합니다.
             CurrentPlayBeat = Chart.ConvertTimeToBeat(CurrentPlayTime);
             // 현재 재생 비트를 위치로 변환합니다.
-            CurrentPosition = Chart.GetPosition(CurrentPlayBeat);
+            CurrentPosition = Chart.GetPosition(CurrentPlayTime);
 
             for (int index = 0; index < (int)Chart.InputType; index++)
             {

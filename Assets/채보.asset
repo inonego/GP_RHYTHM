@@ -17,7 +17,7 @@ MonoBehaviour:
   Genre: 
   Description: 
   Music: {fileID: 8300000, guid: 5ca43f5ef76f3a945b3c59b16fddd6ea, type: 3}
-  StartTime: 0
+  StartTime: 2.25
   InitialBPM: 160
   <InputType>k__BackingField: 4
   _SQListNote:
@@ -26,4 +26,4 @@ MonoBehaviour:
   - {}
   - {}
   _SQBPMChange: {}
-  _SQAutoPlay: {}
+  _SQSpeedChange: {}

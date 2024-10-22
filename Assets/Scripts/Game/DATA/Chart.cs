@@ -1,7 +1,8 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Chart : ScriptableObject
 {
@@ -144,25 +145,69 @@ public class Chart : ScriptableObject
         return sum;
     }
 
-    public float GetPosition(double beat)
+    private void ApplyToAllGameEvent(Action<GameEvent> action)
     {
-        double position = beat;
+        for (int i = 0; i < SQListNote.Count; i++)
+        {
+            foreach (NoteEvent e in SQListNote[i].Events)
+            {
+                action(e);
+            }
+        }
+
+        foreach (BPMChangeEvent e in SQBPMChange.Events)
+        {
+            action(e);
+        }
+
+        foreach (SpeedChangeEvent e in SQSpeedChange.Events)
+        {
+            action(e);
+        }
+    }
+
+    public void MakeCache()
+    {
+        void DoCache(GameEvent e)
+        {
+            double noteTime     = ConvertBeatToTime(e.Beat);
+            double noteEndTime  = ConvertBeatToTime(e.Beat + e.Duration);
+
+            e.MakeCache(noteTime, e.isLong ? noteEndTime - noteTime : 0.0);
+        }
+
+        ApplyToAllGameEvent(DoCache);
+    }
+
+    public void ClearCache()
+    {
+        void DoCache(GameEvent e)
+        {
+            e.ClearCache();
+        }
+
+        ApplyToAllGameEvent(DoCache);
+    }
+
+    public float GetPosition(double time)
+    {
+        double position = time;
         float previousSpeed = 1f;
 
         foreach (SpeedChangeEvent e in SQSpeedChange.Events)
         {
-            double eventBeat = e.Beat;
+            double eventTime = e.CachedTime;
 
-            if (eventBeat > beat)
+            if (eventTime > time)
             {
                 break;
             }
 
-            position += (e.Speed - previousSpeed) * (beat - eventBeat);
+            position += (e.Speed - previousSpeed) * (time - eventTime);
             previousSpeed = e.Speed;
         }
         
-        return (float)(ConvertBeatToTime(position));
+        return (float)(position);
     }
 
     /// <summary>

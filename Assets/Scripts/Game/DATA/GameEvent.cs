@@ -12,6 +12,21 @@ public abstract class GameEvent : IComparable<GameEvent>
     /// </summary>
     public double Duration;
 
+    public double CachedTime    { get; private set; }
+    public double CachedLength  { get; private set; }
+
+    internal void MakeCache(double time, double length)
+    {
+        CachedTime = time;
+        CachedLength = length;
+    }
+
+    internal void ClearCache()
+    {
+        CachedTime = 0.0;
+        CachedLength = 0.0;
+    }
+
     public bool isLong => Duration > 0;
 
     public GameEvent() : this(0.0, 0.0) { }
@@ -20,6 +35,8 @@ public abstract class GameEvent : IComparable<GameEvent>
     {
        Beat = beat;
        Duration = duration;
+
+       ClearCache();
     }
 
     public int CompareTo(GameEvent other)

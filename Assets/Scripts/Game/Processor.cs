@@ -12,6 +12,8 @@ public class Processor : MonoSingleton<Processor>
 
     public double ProcessBeatDuration = 16.0;
 
+    public ProcessEvent OnProcessEnded;
+
     public KeyEvent OnKeyEvent;
     public NoteProcessEvent OnNoteProcess;
     public LongProcessEvent OnLongProcess;
@@ -20,11 +22,6 @@ public class Processor : MonoSingleton<Processor>
     #endregion
 
     #region 유니티 이벤트 메서드
-
-    private void Start()
-    {
-        AudioManager.Instance.OnMusicEnded += OnMusicEnded;
-    }
 
     private void Update()
     {
@@ -43,10 +40,12 @@ public class Processor : MonoSingleton<Processor>
 
         Current = new CurrentProcess(chart);
 
-        Current.OnKeyEvent    += OnKeyEvent;
-        Current.OnNoteProcess += OnNoteProcess;
-        Current.OnLongProcess += OnLongProcess;
-        Current.NoteSpawnFunc  = NoteSpawnFunc;
+        Current.OnProcessEnded  += OnProcessEnded;
+
+        Current.OnKeyEvent      += OnKeyEvent;
+        Current.OnNoteProcess   += OnNoteProcess;
+        Current.OnLongProcess   += OnLongProcess;
+        Current.NoteSpawnFunc    = NoteSpawnFunc;
 
         Current.Play();
 
@@ -66,11 +65,11 @@ public class Processor : MonoSingleton<Processor>
         if (Current != null)
         {
             Current.Release();
-
-            NoteManager.Instance.DespawnAll();
         }
 
         Current = null;
+
+        NoteManager.Instance.DespawnAll();
     }
 
     #endregion
@@ -86,16 +85,6 @@ public class Processor : MonoSingleton<Processor>
             NoteManager.Instance.SetCurrentPlayTime(Current.CurrentPlayTime);
             NoteManager.Instance.SetCurrentPosition(Current.CurrentPosition);
         }
-    }
-
-    private void OnMusicEnded()
-    {
-        if (Current != null)
-        {
-            Debug.Log("Done!");
-        }
-
-        Release();
     }
 
     #endregion

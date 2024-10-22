@@ -47,15 +47,6 @@ public class TestPlay : MonoBehaviour
 
                 Chart.SQListNote[3].Events.Add(noteEvent);
             }
-
-            for (int i = 0; i < 256; i++)
-            {
-                SpeedChangeEvent speedChangeEvent = new SpeedChangeEvent();
-
-                speedChangeEvent.Beat = i * 4f;
-                speedChangeEvent.Speed = (i % 2) + 1f;
-                Chart.SQSpeedChange.Events.Add(speedChangeEvent);
-            }
         }
 
         Processor.Instance.Play(Chart);

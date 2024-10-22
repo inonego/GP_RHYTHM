@@ -57,11 +57,6 @@ public class AudioManager : MonoSingleton<AudioManager>
         }
     }
 
-    private void OnDestroy()
-    {
-        ReleaseAll();
-    }
-
     public FMOD.Sound LoadSound(string path, FMOD.MODE mode = FMOD.MODE.DEFAULT)
     {
         RuntimeManager.CoreSystem.createSound(path, mode, out FMOD.Sound sound);
@@ -104,8 +99,6 @@ public class AudioManager : MonoSingleton<AudioManager>
 
     public void Load(int index, FMOD.Sound sound)
     {
-        Release(index);
-
         sounds[index] = sound;
     }
 
@@ -126,11 +119,6 @@ public class AudioManager : MonoSingleton<AudioManager>
         }
     }
 
-    public void Release(int index)
-    {
-        sounds[index].release();
-    }
-
     public double GetCurrentPlayTime(int channel)
     {
         channels[channel].getPosition(out uint position, FMOD.TIMEUNIT.MS);
@@ -140,8 +128,6 @@ public class AudioManager : MonoSingleton<AudioManager>
 
     public void LoadMusic(FMOD.Sound sound)
     {
-        ReleaseMusic();
-
         music = sound;
     }
 
@@ -170,21 +156,6 @@ public class AudioManager : MonoSingleton<AudioManager>
 
         preDelayCounter.Stop();
         endDelayCounter.Stop();
-    }
-
-    public void ReleaseMusic()
-    {
-        music.release();
-    }
-
-    public void ReleaseAll()
-    {
-        for (int i = 0; i < sounds.Length; i++)
-        {
-            Release(i);
-        }
-
-        ReleaseMusic();
     }
 
     public double GetMusicCurrentPlayTime()
