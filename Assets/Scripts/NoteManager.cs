@@ -5,13 +5,14 @@ using UnityCommunity.UnitySingleton;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+
 [Serializable]
-public class NoteQueue : Queue<Note> { }
+public class NoteDATAQueue : Queue<NoteDATA?> { }
 
 [RequireComponent(typeof(Pool))]
 public class NoteManager : MonoSingleton<NoteManager>
 {
-    #region ÇÊµå º¯¼ö
+    #region í•„ë“œ ë³€ìˆ˜
 
     public InputBindingType InputType { get; private set; }
 
@@ -36,7 +37,7 @@ public class NoteManager : MonoSingleton<NoteManager>
 
     #endregion
 
-    #region À¯´ÏÆ¼ ÀÌº¥Æ® ¸Ş¼­µå
+    #region ìœ ë‹ˆí‹° ì´ë²¤íŠ¸ ë©”ì„œë“œ
 
     protected override void Awake()
     {
@@ -65,16 +66,16 @@ public class NoteManager : MonoSingleton<NoteManager>
 
     #endregion
 
-    #region ³ëÆ® Ã³¸® ¸Ş¼­µå
+    #region ë…¸íŠ¸ ì²˜ë¦¬ ë©”ì„œë“œ
 
     public Note Spawn(int index, double time, double length, float position, float size)
     {
         GameObject GO = pool.Spawn();
 
-        // ½ºÆùµÈ ³ëÆ®ÀÇ °ÔÀÓ ¿ÀºêÁ§Æ®¿¡¼­ ÄÄÆ÷³ÍÆ®¸¦ °¡Á®¿É´Ï´Ù.
+        // ìŠ¤í°ëœ ë…¸íŠ¸ì˜ ê²Œì„ ì˜¤ë¸Œì íŠ¸ì—ì„œ ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
         Note note = GO.GetComponent<Note>();
 
-        // ³ëÆ®ÀÇ ÀÎµ¦½º¿Í ½Ã°£À» ¼³Á¤ÇÕ´Ï´Ù.
+        // ë…¸íŠ¸ì˜ ì¸ë±ìŠ¤ì™€ ì‹œê°„ì„ ì„¤ì •í•©ë‹ˆë‹¤.
         note.Init(index, time, length, position, size);
 
         spawned.Add(note);
@@ -108,32 +109,32 @@ public class NoteManager : MonoSingleton<NoteManager>
     {
         note.transform.position = new Vector3((note.Index - ((int)InputType - 1) * 0.5f) * Space, (note.Position - CurrentPosition) * UnitPerSecond * UserSpeed, 0f) + Offset;
 
-        note.longGO.transform.localPosition = new Vector3(0f, (float)note.Size * UnitPerSecond * UserSpeed * 0.5f, 0f);
-        note.longGO.transform.localScale    = new Vector3(1f, (float)note.Size * UnitPerSecond * UserSpeed, 1f);
+        note.GOLong.transform.localPosition = new Vector3(0f, (float)note.Size * UnitPerSecond * UserSpeed * 0.5f, 0f);
+        note.GOLong.transform.localScale    = new Vector3(1f, (float)note.Size * UnitPerSecond * UserSpeed, 1f);
     }
 
     /// <summary>
-    /// ÀÔ·Â Å¸ÀÔÀ» ¼³Á¤ÇÕ´Ï´Ù.
+    /// ì…ë ¥ íƒ€ì…ì„ ì„¤ì •í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="inputType">¼³Á¤ÇÒ ÀÔ·Â Å¸ÀÔÀÔ´Ï´Ù.</param>
+    /// <param name="inputType">ì„¤ì •í•  ì…ë ¥ íƒ€ì…ì…ë‹ˆë‹¤.</param>
     public void SetInputType(InputBindingType inputType)
     {
         InputType = inputType;
     }
 
     /// <summary>
-    /// ÇöÀç Àç»ı ½Ã°£À» ¼³Á¤ÇÕ´Ï´Ù.
+    /// í˜„ì¬ ì¬ìƒ ì‹œê°„ì„ ì„¤ì •í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="currentPlayTime">¼³Á¤ÇÒ ÇöÀç Àç»ı ½Ã°£ÀÔ´Ï´Ù.</param>
+    /// <param name="currentPlayTime">ì„¤ì •í•  í˜„ì¬ ì¬ìƒ ì‹œê°„ì…ë‹ˆë‹¤.</param>
     public void SetCurrentPlayTime(double currentPlayTime)
     {
         CurrentPlayTime = currentPlayTime;
     }
 
     /// <summary>
-    /// ÇöÀç À§Ä¡¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+    /// í˜„ì¬ ìœ„ì¹˜ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="currentPosition">¼³Á¤ÇÒ ÇöÀç À§Ä¡ÀÔ´Ï´Ù.</param>
+    /// <param name="currentPosition">ì„¤ì •í•  í˜„ì¬ ìœ„ì¹˜ì…ë‹ˆë‹¤.</param>
     public void SetCurrentPosition(float currentPosition)
     {
         CurrentPosition = currentPosition;

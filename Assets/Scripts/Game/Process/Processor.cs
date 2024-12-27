@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Processor : MonoSingleton<Processor>
 {
-    #region ÇÊµå º¯¼ö
+    #region í•„ë“œ ë³€ìˆ˜
 
     public CurrentProcess Current { get; private set; }
 
@@ -14,14 +14,13 @@ public class Processor : MonoSingleton<Processor>
 
     public ProcessEvent OnProcessEnded;
 
-    public KeyEvent OnKeyEvent;
-    public NoteProcessEvent OnNoteProcess;
-    public LongProcessEvent OnLongProcess;
-    public NoteSpawnDelegate NoteSpawnFunc;
+    public event InputProcessEvent OnInputProcess;
+    public event NoteProcessEvent OnNoteProcess;
+    public SpawnFunc NoteSpawnFunc;
 
     #endregion
 
-    #region À¯´ÏÆ¼ ÀÌº¥Æ® ¸Ş¼­µå
+    #region ìœ ë‹ˆí‹° ì´ë²¤íŠ¸ ë©”ì„œë“œ
 
     private void Update()
     {
@@ -30,7 +29,7 @@ public class Processor : MonoSingleton<Processor>
 
     #endregion
 
-    #region Àç»ı ¹× ÁßÁö
+    #region ì¬ìƒ ë° ì¤‘ì§€
 
     public void Play(Chart chart)
     {
@@ -42,10 +41,9 @@ public class Processor : MonoSingleton<Processor>
 
         Current.OnProcessEnded  += OnProcessEnded;
 
-        Current.OnKeyEvent      += OnKeyEvent;
-        Current.OnNoteProcess   += OnNoteProcess;
-        Current.OnLongProcess   += OnLongProcess;
-        Current.NoteSpawnFunc    = NoteSpawnFunc;
+        Current.OnInputProcess   += OnInputProcess;
+        Current.OnNoteProcess    += OnNoteProcess;
+        Current.NoteSpawnFunc     = NoteSpawnFunc;
 
         Current.Play();
 
@@ -74,7 +72,7 @@ public class Processor : MonoSingleton<Processor>
 
     #endregion
 
-    #region Ã¤º¸ Ã³¸® ¸Ş¼­µå
+    #region ì±„ë³´ ì²˜ë¦¬ ë©”ì„œë“œ
 
     private void Process()
     {

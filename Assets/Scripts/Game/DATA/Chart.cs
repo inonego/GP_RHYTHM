@@ -6,27 +6,27 @@ using UnityEngine;
 
 public class Chart : ScriptableObject
 {
-    #region Á¤Àû ¸Ş¼­µå
+    #region ì •ì  ë©”ì„œë“œ
 
     /// <summary>
-    /// Ã¤º¸¸¦ »ı¼ºÇÕ´Ï´Ù.
+    /// ì±„ë³´ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="inputType">»ı¼ºÇÒ Ã¤º¸ÀÇ ÀÔ·Â Å¸ÀÔÀÔ´Ï´Ù.</param>
+    /// <param name="inputType">ìƒì„±í•  ì±„ë³´ì˜ ì…ë ¥ íƒ€ì…ì…ë‹ˆë‹¤.</param>
     public static Chart CreateChart(InputBindingType inputType)
     {
         var chart = CreateInstance<Chart>();
 
         chart.Init(inputType);
 
-        AssetDatabase.CreateAsset(chart, "Assets/Ã¤º¸.asset");
+        AssetDatabase.CreateAsset(chart, "Assets/ì±„ë³´.asset");
 
         return chart;
     }
 
     /// <summary>
-    /// 4Å° Ã¤º¸¸¦ »ı¼ºÇÕ´Ï´Ù.
+    /// 4í‚¤ ì±„ë³´ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
     /// </summary>
-    [MenuItem("¸®µë°ÔÀÓ/Ã¤º¸(4Å°) »ı¼º")]
+    [MenuItem("ë¦¬ë“¬ê²Œì„/ì±„ë³´(4í‚¤) ìƒì„±")]
     static void CreateChartKEY4()
     {
         CreateChart(InputBindingType.KEY4);
@@ -34,45 +34,45 @@ public class Chart : ScriptableObject
 
     #endregion
 
-    #region ÇÊµå º¯¼ö
+    #region í•„ë“œ ë³€ìˆ˜
 
     /// <summary>
-    /// Ã¤º¸ ³ë·¡ÀÇ ÀÌ¸§ÀÔ´Ï´Ù.
+    /// ì±„ë³´ ë…¸ë˜ì˜ ì´ë¦„ì…ë‹ˆë‹¤.
     /// </summary>
     public string Name;
 
     /// <summary>
-    /// Ã¤º¸ ³ë·¡ÀÇ Á¦ÀÛÀÚÀÔ´Ï´Ù.
+    /// ì±„ë³´ ë…¸ë˜ì˜ ì œì‘ìì…ë‹ˆë‹¤.
     /// </summary>
     public string Author;
 
     /// <summary>
-    /// Ã¤º¸ ³ë·¡ÀÇ Àå¸£ÀÔ´Ï´Ù.
+    /// ì±„ë³´ ë…¸ë˜ì˜ ì¥ë¥´ì…ë‹ˆë‹¤.
     /// </summary>
     public string Genre;
 
     /// <summary>
-    /// Ã¤º¸ ³ë·¡¿¡ ´ëÇÑ ¼³¸íÀÔ´Ï´Ù.
+    /// ì±„ë³´ ë…¸ë˜ì— ëŒ€í•œ ì„¤ëª…ì…ë‹ˆë‹¤.
     /// </summary>
     public string Description;
 
     /// <summary>
-    /// Ã¤º¸ ³ë·¡ÀÔ´Ï´Ù.
+    /// ì±„ë³´ ë…¸ë˜ì…ë‹ˆë‹¤.
     /// </summary>
     public AudioClip Music;
 
     /// <summary>
-    /// Ã¤º¸ ³ë·¡ Àç»ı ½Ã ³ë·¡°¡ ½ÃÀÛµÇ´Â ½Ã°£ÀÔ´Ï´Ù.
+    /// ì±„ë³´ ë…¸ë˜ ì¬ìƒ ì‹œ ë…¸ë˜ê°€ ì‹œì‘ë˜ëŠ” ì‹œê°„ì…ë‹ˆë‹¤.
     /// </summary>
     public double StartTime = 0.0;
 
     /// <summary>
-    /// Ã¤º¸ ³ë·¡ÀÇ ½ÃÀÛ BPMÀÔ´Ï´Ù.
+    /// ì±„ë³´ ë…¸ë˜ì˜ ì‹œì‘ BPMì…ë‹ˆë‹¤.
     /// </summary>
     public double InitialBPM = 120.0;
 
     /// <summary>
-    /// Ã¤º¸ÀÇ ÀÔ·Â Å¸ÀÔÀÔ´Ï´Ù.
+    /// ì±„ë³´ì˜ ì…ë ¥ íƒ€ì…ì…ë‹ˆë‹¤.
     /// </summary>
     [field: SerializeField, HideInInspector]
     public InputBindingType InputType { get; private set; }
@@ -82,32 +82,32 @@ public class Chart : ScriptableObject
     [SerializeField, HideInInspector] private Sequence<SpeedChangeEvent> _SQSpeedChange = new Sequence<SpeedChangeEvent>();
 
     /// <summary>
-    /// ³ëÆ® ÀÌº¥Æ®¿¡ ´ëÇÑ ½ÃÄö½º ¸ñ·ÏÀÔ´Ï´Ù.
+    /// ë…¸íŠ¸ ì´ë²¤íŠ¸ì— ëŒ€í•œ ì‹œí€€ìŠ¤ ëª©ë¡ì…ë‹ˆë‹¤.
     /// </summary>
     public IReadOnlyList<Sequence<NoteEvent>> SQListNote => _SQListNote;
     /// <summary>
-    /// BPM º¯°æ ÀÌº¥Æ®¿¡ ´ëÇÑ ½ÃÄö½ºÀÔ´Ï´Ù.
+    /// BPM ë³€ê²½ ì´ë²¤íŠ¸ì— ëŒ€í•œ ì‹œí€€ìŠ¤ì…ë‹ˆë‹¤.
     /// </summary>
     public Sequence<BPMChangeEvent> SQBPMChange => _SQBPMChange;
     /// <summary>
-    /// ¼Óµµ º¯°æ ÀÌº¥Æ®¿¡ ´ëÇÑ ½ÃÄö½ºÀÔ´Ï´Ù.
+    /// ì†ë„ ë³€ê²½ ì´ë²¤íŠ¸ì— ëŒ€í•œ ì‹œí€€ìŠ¤ì…ë‹ˆë‹¤.
     /// </summary>
     public Sequence<SpeedChangeEvent> SQSpeedChange => _SQSpeedChange;
 
     #endregion
 
-    #region ÃÊ±âÈ­ ¸Ş¼­µå
+    #region ì´ˆê¸°í™” ë©”ì„œë“œ
 
     /// <summary>
-    /// »ı¼ºÀÚ´Â »ç¿ëµÇÁö ¾Ê½À´Ï´Ù.
-    /// CreateChart¸¦ ÀÌ¿ëÇØÁÖ¼¼¿ä.
+    /// ìƒì„±ìëŠ” ì‚¬ìš©ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
+    /// CreateChartë¥¼ ì´ìš©í•´ì£¼ì„¸ìš”.
     /// </summary>
     private Chart() { }
 
     /// <summary>
-    /// Ã¤º¸¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ì±„ë³´ë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="inputType">Ã¤º¸ÀÇ ÀÔ·Â Å¸ÀÔÀÔ´Ï´Ù.</param>
+    /// <param name="inputType">ì±„ë³´ì˜ ì…ë ¥ íƒ€ì…ì…ë‹ˆë‹¤.</param>
     private void Init(InputBindingType inputType)
     {
         InputType = inputType;
@@ -116,9 +116,9 @@ public class Chart : ScriptableObject
     }
 
     /// <summary>
-    /// ³ëÆ® ÀÌº¥Æ® ½ÃÄö½º ¸ñ·ÏÀÇ °³¼ö¸¦ Á¤ÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ ì´ë²¤íŠ¸ ì‹œí€€ìŠ¤ ëª©ë¡ì˜ ê°œìˆ˜ë¥¼ ì •í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="count">¼³Á¤ÇÒ °³¼öÀÔ´Ï´Ù.</param>
+    /// <param name="count">ì„¤ì •í•  ê°œìˆ˜ì…ë‹ˆë‹¤.</param>
     private void SetSQListNoteCount(int count)
     {
         _SQListNote.Clear();
@@ -131,7 +131,7 @@ public class Chart : ScriptableObject
 
     #endregion
 
-    #region À¯Æ¿ ¸Ş¼­µå
+    #region ìœ í‹¸ ë©”ì„œë“œ
 
     public int GetTotalNoteEventCount()
     {
@@ -211,10 +211,10 @@ public class Chart : ScriptableObject
     }
 
     /// <summary>
-    /// ½Ã°£À» ºñÆ®·Î º¯È¯ÇÕ´Ï´Ù.
+    /// ì‹œê°„ì„ ë¹„íŠ¸ë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="time">º¯È¯ÇÒ ½Ã°£ÀÔ´Ï´Ù.</param>
-    /// <returns>º¯È¯µÈ ºñÆ®ÀÔ´Ï´Ù.</returns>
+    /// <param name="time">ë³€í™˜í•  ì‹œê°„ì…ë‹ˆë‹¤.</param>
+    /// <returns>ë³€í™˜ëœ ë¹„íŠ¸ì…ë‹ˆë‹¤.</returns>
     public double ConvertTimeToBeat(double time)
     {
         double elapsedTime = StartTime;
@@ -236,10 +236,10 @@ public class Chart : ScriptableObject
     }
 
     /// <summary>
-    /// ºñÆ®¸¦ ½Ã°£À¸·Î º¯È¯ÇÕ´Ï´Ù.
+    /// ë¹„íŠ¸ë¥¼ ì‹œê°„ìœ¼ë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="beat">º¯È¯ÇÒ ºñÆ®ÀÔ´Ï´Ù.</param>
-    /// <returns>º¯È¯µÈ ½Ã°£ÀÔ´Ï´Ù.</returns>
+    /// <param name="beat">ë³€í™˜í•  ë¹„íŠ¸ì…ë‹ˆë‹¤.</param>
+    /// <returns>ë³€í™˜ëœ ì‹œê°„ì…ë‹ˆë‹¤.</returns>
     public double ConvertBeatToTime(double beat)
     {
         double elapsedTime = StartTime;

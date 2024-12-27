@@ -13,26 +13,13 @@ public enum InputBindingType
 
 public enum InputType
 {
-    KeyUp, KeyDown
-}
-
-public struct InputDATA
-{
-    public InputAction InputAction;
-    public InputType Type;
-    public double Time;
-
-    public InputDATA(InputAction inputAction, InputType type, double time)
-    {
-        InputAction = inputAction;
-        Type = type;
-        Time = time;
-    }
+    KeyPressed, KeyReleased
 }
 
 [Serializable]
-public class InputQueue : Queue<InputDATA>
+public class InputDATAQueue : Queue<InputDATA?>
 {
+    [SerializeField, HideInInspector]
     private List<InputAction> inputActionList = new List<InputAction>();
     public IReadOnlyList<InputAction> InputActionList => inputActionList;
 
@@ -57,14 +44,14 @@ public class InputQueue : Queue<InputDATA>
 
     private void OnKeyDown(InputAction.CallbackContext context)
     {
-        InputDATA inputDATA = new InputDATA(context.action, InputType.KeyDown, AudioManager.Instance.GetMusicCurrentPlayTime());
+        InputDATA inputDATA = new InputDATA { InputAction = context.action, Type = InputType.KeyPressed, Time = AudioManager.Instance.GetMusicCurrentPlayTime() };
 
         Enqueue(inputDATA);
     }
 
     private void OnKeyUp(InputAction.CallbackContext context)
     {
-        InputDATA inputDATA = new InputDATA(context.action, InputType.KeyUp, AudioManager.Instance.GetMusicCurrentPlayTime());
+        InputDATA inputDATA = new InputDATA { InputAction = context.action, Type = InputType.KeyReleased, Time = AudioManager.Instance.GetMusicCurrentPlayTime() };
 
         Enqueue(inputDATA);
     }
@@ -79,9 +66,6 @@ public class InputBinding {
 
 public class InputManager : MonoSingleton<InputManager>
 {
-    /// <summary>
-    /// 키 입력 수에 따라 다른 입력 바인딩을 지정합니다.
-    /// </summary>
     [field: SerializeField]
     public SerializedDictionary<InputBindingType, InputBinding> InputBindingList { get; private set; } = new SerializedDictionary<InputBindingType, InputBinding>();
 }

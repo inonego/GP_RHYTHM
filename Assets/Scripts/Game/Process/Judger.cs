@@ -4,6 +4,11 @@ using System.Collections.Generic;
 using UnityCommunity.UnitySingleton;
 using UnityEngine;
 
+public enum JudgeType
+{
+    Clear, Miss, Break
+}
+
 public class Judger : MonoSingleton<Judger>
 {
     public double Calibration = 0.0;
@@ -15,21 +20,21 @@ public class Judger : MonoSingleton<Judger>
     public double BreakTime = 0.0;
 
     /// <summary>
-    /// ÇöÀç ÀÔ·Â¿¡ µû¸¥ ³ëÆ®ÀÇ Á¡¼ö¸¦ °è»êÇÕ´Ï´Ù.
+    /// í˜„ì¬ ì…ë ¥ì— ë”°ë¥¸ ë…¸íŠ¸ì˜ ì ìˆ˜ë¥¼ ê³„ì‚°í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="inputTime"></param>
     /// <param name="note"></param>
     /// <returns></returns>
     public float CalculateScore(double inputTime, Note note)
     {
-        // ³ëÆ® ½Ã°£ ±âÁØ ½Ã°£ Â÷ÀÌÀÔ´Ï´Ù.
+        // ë…¸íŠ¸ ì‹œê°„ ê¸°ì¤€ ì‹œê°„ ì°¨ì´ì…ë‹ˆë‹¤.
         double delta = inputTime - note.Time;
 
         return Mathf.Lerp(100f, 0f, (float)((Math.Clamp(Math.Abs(delta), PerfectTime, JudgeTime) - PerfectTime) / (JudgeTime - PerfectTime)));
     }
 
     /// <summary>
-    /// ³ëÆ®°¡ Break³ª Miss µÇÁö ¾Ê¾Ò´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ê°€ Breakë‚˜ Miss ë˜ì§€ ì•Šì•˜ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="time"></param>
     /// <param name="note"></param>
@@ -44,85 +49,85 @@ public class Judger : MonoSingleton<Judger>
     }
 
     /// <summary>
-    /// ·Õ ³ëÆ®°¡ Clear µÇ´Â ±âÁØ ½Ã°£À» ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ê°€ Clear ë˜ëŠ” ê¸°ì¤€ ì‹œê°„ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="note"></param>
     /// <returns></returns>
-    public double GetLongClearedCriteriaTime(Note note)
+    public double GetClearCriteriaTime(Note note)
     {
-        // ³ëÆ®ÀÇ ³¡¿¡¼­ JudgeTime¸¸Å­ÀÇ ¿©À¯¸¦ °¡Áö´Â ½Ã°£ÀÌ ±âÁØÀÌ µË´Ï´Ù.
+        // ë…¸íŠ¸ì˜ ëì—ì„œ JudgeTimeë§Œí¼ì˜ ì—¬ìœ ë¥¼ ê°€ì§€ëŠ” ì‹œê°„ì´ ê¸°ì¤€ì´ ë©ë‹ˆë‹¤.
         return note.Time + note.Length - JudgeTime;
     }
 
     /// <summary>
-    /// ³ëÆ®°¡ Break µÇ´Â ±âÁØ ÃÖ¼Ò ½Ã°£À» ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ê°€ Break ë˜ëŠ” ê¸°ì¤€ ìµœì†Œ ì‹œê°„ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="note"></param>
     /// <returns></returns>
-    public double GetMinBreakedCriteriaTime(Note note)
+    public double GetMinBreakCriteriaTime(Note note)
     {
-        // BreakTime¸¸Å­ ´õ ÀÏÂï ´©¸£´Â ½Ã°£ÀÌ ±âÁØÀÌ µË´Ï´Ù.
+        // BreakTimeë§Œí¼ ë” ì¼ì° ëˆ„ë¥´ëŠ” ì‹œê°„ì´ ê¸°ì¤€ì´ ë©ë‹ˆë‹¤.
         return note.Time - BreakTime;
     }
 
     /// <summary>
-    /// ³ëÆ®°¡ Break µÇ´Â ±âÁØ ÃÖ´ë ½Ã°£À» ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ê°€ Break ë˜ëŠ” ê¸°ì¤€ ìµœëŒ€ ì‹œê°„ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="note"></param>
     /// <returns></returns>
-    public double GetMaxBreakedCriteriaTime(Note note)
+    public double GetMaxBreakCriteriaTime(Note note)
     {
-        // JudgeTime¸¸Å­ ´õ ÀÏÂï ´©¸£´Â ½Ã°£ÀÌ ±âÁØÀÌ µË´Ï´Ù.
+        // JudgeTimeë§Œí¼ ë” ì¼ì° ëˆ„ë¥´ëŠ” ì‹œê°„ì´ ê¸°ì¤€ì´ ë©ë‹ˆë‹¤.
         return note.Time - JudgeTime;
     }
 
     /// <summary>
-    /// ³ëÆ®°¡ Miss µÇ´Â ±âÁØ ½Ã°£À» ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ê°€ Miss ë˜ëŠ” ê¸°ì¤€ ì‹œê°„ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="note"></param>
     /// <returns></returns>
-    public double GetMissedCriteriaTime(Note note)
+    public double GetMissCriteriaTime(Note note)
     {
-        // MissTime¸¸Å­ ´õ ´Ê°Ô ´©¸£´Â ½Ã°£ÀÌ ±âÁØÀÌ µË´Ï´Ù.
+        // MissTimeë§Œí¼ ë” ëŠ¦ê²Œ ëˆ„ë¥´ëŠ” ì‹œê°„ì´ ê¸°ì¤€ì´ ë©ë‹ˆë‹¤.
         return note.Time + MissTime;
     }
 
     /// <summary>
-    /// ·Õ ³ëÆ®°¡ Clear µÇ¾ú´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ê°€ Clear ë˜ì—ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="time"></param>
     /// <param name="note"></param>
     /// <returns></returns>
-    public bool CheckLongCleared(double time, Note note)
+    public bool CheckClear(double time, Note note)
     {
         time += Calibration;
 
-        return GetLongClearedCriteriaTime(note) <= time;
+        return GetClearCriteriaTime(note) <= time;
     }
 
     /// <summary>
-    /// ³ëÆ®°¡ Break µÇ¾ú´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ê°€ Break ë˜ì—ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="time"></param>
     /// <param name="note"></param>
     /// <returns></returns>
-    public bool CheckBreaked(double time, Note note)
+    public bool CheckBreak(double time, Note note)
     {
         time += Calibration;
 
-        return GetMinBreakedCriteriaTime(note) < time && time < GetMaxBreakedCriteriaTime(note);
+        return GetMinBreakCriteriaTime(note) < time && time < GetMaxBreakCriteriaTime(note);
     }
 
     /// <summary>
-    /// ³ëÆ®°¡ Miss µÇ¾ú´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ë…¸íŠ¸ê°€ Miss ë˜ì—ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     /// <param name="time"></param>
     /// <param name="note"></param>
     /// <returns></returns>
-    public bool CheckMissed(double time, Note note)
+    public bool CheckMiss(double time, Note note)
     {
         time += Calibration;
 
-        return GetMissedCriteriaTime(note) < time;
+        return GetMissCriteriaTime(note) < time;
     }
 }

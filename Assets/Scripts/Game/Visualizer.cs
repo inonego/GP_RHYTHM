@@ -21,9 +21,8 @@ public class Visualizer : MonoSingleton<Visualizer>
 
     private void Start()
     {
-        Processor.Instance.OnKeyEvent    += OnKeyEvent;
+        Processor.Instance.OnInputProcess += OnInputProcess;
         Processor.Instance.OnNoteProcess += OnNoteProcess;
-        Processor.Instance.OnLongProcess += OnLongProcess;
     }
 
     private void Update()
@@ -38,9 +37,9 @@ public class Visualizer : MonoSingleton<Visualizer>
         SpeedUI.text = string.Format("x {0:#0.0}", NoteManager.Instance.UserSpeed);
     }
 
-    private void OnKeyEvent(int index, InputDATA inputDATA)
+    private void OnInputProcess(int index, InputDATA inputDATA)
     {
-        bool isKeyPressed = inputDATA.Type == InputType.KeyDown;
+        bool isKeyPressed = inputDATA.Type == InputType.KeyPressed;
 
         if (isKeyPressed)
         {
@@ -59,30 +58,18 @@ public class Visualizer : MonoSingleton<Visualizer>
         JudgeEffectList[i].Play();
     }
 
-    private void OnNoteProcess(int index, NoteProcessDATA noteProcessDATA)
+    private void OnNoteProcess(int index, NoteDATA noteDATA)
     {
-        double delta = noteProcessDATA.Time - noteProcessDATA.Note.Time;
+        double delta = noteDATA.JudgeDATA.Value.Time - noteDATA.Note.Time;
 
         PlayJudgeEffect(delta);
 
-        if (noteProcessDATA.Score > 0f)
+        if (noteDATA.JudgeDATA.Value.Score > 0f)
         {
             NoteEffectList[index].Play();
 
             ComboAnimation.Play();
             ProcessScoreAnimation.Play();
-        }
-    }
-
-    private void OnLongProcess(int index, LongProcessDATA longProcessDATA)
-    {
-        if (longProcessDATA.Type == LongProcessType.Press)
-        {
-            NoteEffectList[index].Play("LongEffect");
-        }
-        else
-        {
-            NoteEffectList[index].Play();
         }
     }
 }

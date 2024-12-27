@@ -1,18 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityCommunity.UnitySingleton;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoSingleton<GameManager>
 {
-    // Start is called before the first frame update
-    void Start()
+    public IEnumerator DoPlay(Chart chart)
     {
-        
+        yield return null;
+
+        Processor.Instance.Play(chart);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void Play(Chart chart)
     {
-        
+        AsyncOperation async = SceneManager.LoadSceneAsync("MainScene");
+
+        if (async.isDone)
+        {
+            StartCoroutine(DoPlay(chart));
+        }
     }
 }

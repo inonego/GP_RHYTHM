@@ -4,11 +4,11 @@ using System;
 public abstract class GameEvent : IComparable<GameEvent>
 {
     /// <summary>
-    /// ÀÌº¥Æ®°¡ ¹ß»ıÇÏ´Â ºñÆ®ÀÇ ½ÃÁ¡ÀÔ´Ï´Ù.
+    /// ì´ë²¤íŠ¸ê°€ ë°œìƒí•˜ëŠ” ë¹„íŠ¸ì˜ ì‹œì ì…ë‹ˆë‹¤.
     /// </summary>
     public double Beat;
     /// <summary>
-    /// ÀÌº¥Æ®°¡ Áö¼ÓµÇ´Â ºñÆ®ÀÇ ±æÀÌÀÔ´Ï´Ù.
+    /// ì´ë²¤íŠ¸ê°€ ì§€ì†ë˜ëŠ” ë¹„íŠ¸ì˜ ê¸¸ì´ì…ë‹ˆë‹¤.
     /// </summary>
     public double Duration;
 
@@ -46,31 +46,31 @@ public abstract class GameEvent : IComparable<GameEvent>
 }
 
 /// <summary>
-/// ³ëÆ®¿¡ ´ëÇÑ ÀÌº¥Æ®ÀÔ´Ï´Ù.
+/// ë…¸íŠ¸ì— ëŒ€í•œ ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
 /// </summary>
 [Serializable]
 public class NoteEvent : GameEvent { }
 
 /// <summary>
-/// BPM º¯°æ¿¡ ´ëÇÑ ÀÌº¥Æ®ÀÔ´Ï´Ù.
+/// BPM ë³€ê²½ì— ëŒ€í•œ ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
 /// </summary>
 [Serializable]
 public class BPMChangeEvent : GameEvent
 {
     /// <summary>
-    /// ÀÌº¥Æ®°¡ Ã³¸®µÇµµ·Ï ÇÏ´Â BPM¸¦ ¼³Á¤ÇÏ´Â °ªÀÔ´Ï´Ù.
+    /// ì´ë²¤íŠ¸ê°€ ì²˜ë¦¬ë˜ë„ë¡ í•˜ëŠ” BPMë¥¼ ì„¤ì •í•˜ëŠ” ê°’ì…ë‹ˆë‹¤.
     /// </summary>
     public double BPM;
 }
 
 /// <summary>
-/// ¼Óµµ º¯°æ¿¡ ´ëÇÑ ÀÌº¥Æ®ÀÔ´Ï´Ù.
+/// ì†ë„ ë³€ê²½ì— ëŒ€í•œ ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
 /// </summary>
 [Serializable]
 public class SpeedChangeEvent : GameEvent
 {
     /// <summary>
-    /// ÀÌº¥Æ®°¡ Ã³¸®µÇµµ·Ï ÇÏ´Â ¼Óµµ¸¦ ¼³Á¤ÇÏ´Â °ªÀÔ´Ï´Ù.
+    /// ì´ë²¤íŠ¸ê°€ ì²˜ë¦¬ë˜ë„ë¡ í•˜ëŠ” ì†ë„ë¥¼ ì„¤ì •í•˜ëŠ” ê°’ì…ë‹ˆë‹¤.
     /// </summary>
     public float Speed;
 }

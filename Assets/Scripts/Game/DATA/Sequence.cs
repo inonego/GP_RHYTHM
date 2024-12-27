@@ -3,27 +3,27 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// ÀÌº¥Æ®¸¦ ¸ñ·ÏÀ¸·Î °ü¸®ÇÏ°í Ã³¸®ÇÒ ¼ö ÀÖµµ·Ï ÇÏ´Â ½ÃÄö½ºÀÔ´Ï´Ù.
+/// ì´ë²¤íŠ¸ë¥¼ ëª©ë¡ìœ¼ë¡œ ê´€ë¦¬í•˜ê³  ì²˜ë¦¬í•  ìˆ˜ ìˆë„ë¡ í•˜ëŠ” ì‹œí€€ìŠ¤ì…ë‹ˆë‹¤.
 /// </summary>
 /// <typeparam name="T"></typeparam>
 [Serializable]
 public class Sequence<T> where T : GameEvent, new()
 {
     /// <summary>
-    /// ÀüÃ¼ ÀÌº¥Æ®ÀÇ ¸ñ·ÏÀÔ´Ï´Ù.
+    /// ì „ì²´ ì´ë²¤íŠ¸ì˜ ëª©ë¡ì…ë‹ˆë‹¤.
     /// </summary>
     [field: SerializeField]
     public SortedList<T> Events { get; private set; } = new SortedList<T>();
 
     /// <summary>
-    /// ÀÌº¥Æ®¸¦ Ã£À»¶§ »ç¿ëÇÏ´Â ÀÓ½Ã º¯¼öÀÔ´Ï´Ù.
+    /// ì´ë²¤íŠ¸ë¥¼ ì°¾ì„ë•Œ ì‚¬ìš©í•˜ëŠ” ì„ì‹œ ë³€ìˆ˜ì…ë‹ˆë‹¤.
     /// </summary>
     private readonly T searchEvent = new T();
 
     /// <summary>
-    /// ÁöÁ¤µÈ ºñÆ® ÀÌÈÄ·Î ³ª¿À´Â Ã¹¹øÂ° ÀÌº¥Æ®ÀÇ ÀÎµ¦½º¸¦ ±¸ÇÕ´Ï´Ù.
+    /// ì§€ì •ëœ ë¹„íŠ¸ ì´í›„ë¡œ ë‚˜ì˜¤ëŠ” ì²«ë²ˆì§¸ ì´ë²¤íŠ¸ì˜ ì¸ë±ìŠ¤ë¥¼ êµ¬í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="beat">±âÁØÀÌ µÇ´Â ºñÆ®ÀÔ´Ï´Ù.</param>
+    /// <param name="beat">ê¸°ì¤€ì´ ë˜ëŠ” ë¹„íŠ¸ì…ë‹ˆë‹¤.</param>
     public int Search(double beat)
     {
         searchEvent.Beat = beat;

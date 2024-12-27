@@ -132,8 +132,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f337c71a76c14b1468ac7b778d72e507, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timeGO: {fileID: 3835673938144728383}
-  longGO: {fileID: 7273474186395345427}
+  GOTime: {fileID: 3835673938144728383}
+  GOLong: {fileID: 7273474186395345427}
   EnabledColor: {r: 0, g: 1, b: 0.90656495, a: 1}
   DisabledColor: {r: 0.4773941, g: 0.5769554, b: 0.6792453, a: 1}
   LongEnabledColor: {r: 0.2251691, g: 0.72646666, b: 0.8679245, a: 0.5529412}
