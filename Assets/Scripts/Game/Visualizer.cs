@@ -23,6 +23,7 @@ public class Visualizer : MonoSingleton<Visualizer>
     {
         Processor.Instance.OnInputProcess += OnInputProcess;
         Processor.Instance.OnNoteProcess += OnNoteProcess;
+        Processor.Instance.OnNoteJudge += OnNoteJudge;
     }
 
     private void Update()
@@ -39,7 +40,7 @@ public class Visualizer : MonoSingleton<Visualizer>
 
     private void OnInputProcess(int index, InputDATA inputDATA)
     {
-        bool isKeyPressed = inputDATA.Type == InputType.KeyPressed;
+        bool isKeyPressed = inputDATA.State == KeyState.Pressed;
 
         if (isKeyPressed)
         {
@@ -60,14 +61,27 @@ public class Visualizer : MonoSingleton<Visualizer>
 
     private void OnNoteProcess(int index, NoteDATA noteDATA)
     {
-        double delta = noteDATA.JudgeDATA.Value.Time - noteDATA.Note.Time;
+        if (noteDATA.Note.IsPressed)
+        {
+            NoteEffectList[index].Play("LongEffect");
+        }
+        else
+        {
+            if (NoteEffectList[index].isPlaying)
+            {
+                NoteEffectList[index].Play();
+            }
+        }
+    }
+
+    private void OnNoteJudge(int index, NoteJudgeDATA noteJudgeDATA)
+    {
+        double delta = noteJudgeDATA.Time - noteJudgeDATA.Note.Time;
 
         PlayJudgeEffect(delta);
 
-        if (noteDATA.JudgeDATA.Value.Score > 0f)
+        if (noteJudgeDATA.Score > 0f)
         {
-            NoteEffectList[index].Play();
-
             ComboAnimation.Play();
             ProcessScoreAnimation.Play();
         }

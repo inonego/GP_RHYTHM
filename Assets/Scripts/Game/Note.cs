@@ -23,7 +23,8 @@ public class Note : MonoBehaviour
 
     public bool IsLong => Length > 0.0;
 
-    public bool IsWorking { get; private set; }
+    public bool IsWorking { get; private set; } = true;
+    public bool IsPressed { get; private set; } = false;
 
     private SpriteRenderer SpriteRendererTime;
     private SpriteRenderer SpriteRendererLong;
@@ -37,6 +38,7 @@ public class Note : MonoBehaviour
     private void OnEnable()
     {
         SetWorking(true);
+        SetPressed(false);
     }
 
     private void Update()
@@ -57,5 +59,10 @@ public class Note : MonoBehaviour
 
         SpriteRendererTime.color = value ? EnabledColor : DisabledColor;
         SpriteRendererLong.color = value ? LongEnabledColor : LongDisabledColor;
+    }
+
+    public void SetPressed(bool value)
+    {
+        IsPressed = value;
     }
 }

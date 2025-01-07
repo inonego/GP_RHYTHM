@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Project R.sln"
+    "dotnet.defaultSolution": "GP_RHYTHM.sln"
 }

@@ -8,6 +8,7 @@ public delegate void ProcessEvent();
 
 public delegate void InputProcessEvent(int index, InputDATA inputDATA);
 public delegate void NoteProcessEvent(int index, NoteDATA noteDATA);
+public delegate void NoteJudgeEvent(int index, NoteJudgeDATA noteJudgeDATA);
 public delegate Note SpawnFunc(int index, double time, double length, float position, float size);
 
 [Serializable]
@@ -17,13 +18,12 @@ public class CurrentProcess
 
     public readonly Chart Chart;
 
+    public bool IsPlaying               { get; private set; } = false;
+
     public float Rate { get; private set; } = 0f;
 
     public int CurrentCombo             { get; private set; } = 0;
     public float CurrentProcessScore    { get; private set; } = 0f;
-
-    public bool IsPlaying               { get; private set; } = false;
-    public bool IsReleased              { get; private set; } = false;
 
     public float  CurrentPosition { get; private set; }
     public double CurrentPlayBeat { get; private set; }
@@ -38,13 +38,18 @@ public class CurrentProcess
 
     private List<ProcessLine> lineList = new List<ProcessLine>();
 
+    private FMOD.Sound music;
+
+    #endregion
+
+    #region 이벤트 및 델리게이트
+
     public event ProcessEvent OnProcessEnded;
 
     public event InputProcessEvent OnInputProcess;
     public event NoteProcessEvent OnNoteProcess;
+    public event NoteJudgeEvent OnNoteJudge;
     public SpawnFunc NoteSpawnFunc;
-
-    private FMOD.Sound music;
 
     #endregion
 
@@ -54,6 +59,7 @@ public class CurrentProcess
     {
         Chart = chart;
 
+        // 라인 관련 처리
         InputBinding inputBinding = InputManager.Instance.InputBindingList[Chart.InputType];
 
         for (int i = 0; i < inputBinding.InputActionList.Count; i++)
@@ -62,8 +68,8 @@ public class CurrentProcess
 
             processLine.OnInputProcess  += _OnInputProcess;
             processLine.OnNoteProcess   += _OnNoteProcess;
+            processLine.OnNoteJudge     += _OnNoteJudge;
             processLine.NoteSpawnFunc   += _NoteSpawnFunc;
-
             
             processLine.Bind(inputBinding.InputActionList[i].action);
 
@@ -73,6 +79,8 @@ public class CurrentProcess
         // 오디오 관련 처리
         music = AudioManager.Instance.LoadSound(Chart.Music, mode: FMOD.MODE.ACCURATETIME);
 
+        AudioManager.Instance.OnMusicEnded += OnMusicEnded;
+
         // 플래그 설정
         IsPlaying  = false;
     }
@@ -81,6 +89,7 @@ public class CurrentProcess
     {
         Chart.ClearCache();
 
+        // 라인 관련 처리
         foreach (var line in lineList)
         {
             line.Release();
@@ -95,7 +104,6 @@ public class CurrentProcess
 
         // 플래그 설정
         IsPlaying = false;
-        IsReleased = true;
     }
 
     #endregion
@@ -111,8 +119,6 @@ public class CurrentProcess
         // 오디오 관련 처리
         AudioManager.Instance.LoadMusic(music);
         AudioManager.Instance.PlayMusic();
-
-        AudioManager.Instance.OnMusicEnded += OnMusicEnded;
 
         // 플래그 설정
         IsPlaying = true;
@@ -131,18 +137,31 @@ public class CurrentProcess
 
     #region 채보 처리 메서드
 
+    /// <summary>
+    /// 입력이 처리될때 호출되는 이벤트입니다.
+    /// </summary>
+    /// <param name="inputDATA"></param>
     private void _OnInputProcess(InputDATA inputDATA)
     {
         OnInputProcess(currentIndex, inputDATA);
     }
 
+    /// <summary>
+    /// 노트가 처리될때 호출되는 이벤트입니다.
+    /// </summary>
+    /// <param name="noteDATA"></param>
     private void _OnNoteProcess(NoteDATA noteDATA)
     {
-        var judgeDATA = noteDATA.JudgeDATA;
+        OnNoteProcess(currentIndex, noteDATA);
+    }
 
-        if (judgeDATA == null) return;
-
-        scoreSum += judgeDATA.Value.Score;
+    /// <summary>
+    /// 노트가 판정될때 호출되는 이벤트입니다.
+    /// </summary>
+    /// <param name="noteJudgeDATA"></param>
+    private void _OnNoteJudge(NoteJudgeDATA noteJudgeDATA)
+    {
+        scoreSum += noteJudgeDATA.Score;
 
         processedCount += 1;
 
@@ -150,7 +169,7 @@ public class CurrentProcess
         Rate = scoreSum / processedCount;
 
         // 현재 콤보 계산
-        if (judgeDATA.Value.Score != 0f)
+        if (noteJudgeDATA.Score != 0f)
         {
             CurrentCombo++;
         }
@@ -160,16 +179,20 @@ public class CurrentProcess
         }
 
         // 현재 노트 점수 계산
-        if (lastestProcessTime < judgeDATA.Value.Time)
+        if (lastestProcessTime < noteJudgeDATA.Time)
         {
-            lastestProcessTime = judgeDATA.Value.Time;
+            lastestProcessTime = noteJudgeDATA.Time;
 
-            CurrentProcessScore = judgeDATA.Value.Score;
+            CurrentProcessScore = noteJudgeDATA.Score;
         }
 
-        OnNoteProcess(currentIndex, noteDATA);
+        OnNoteJudge(currentIndex, noteJudgeDATA);
     }
 
+    /// <summary>
+    /// 노트를 스폰할때 호출되는 메서드입니다.
+    /// </summary>
+    /// <param name="noteEvent"></param>
     private Note _NoteSpawnFunc(NoteEvent noteEvent)
     {
         // 노트의 시작 / 끝 시간입니다.

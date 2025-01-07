@@ -2906,7 +2906,7 @@ MonoBehaviour:
     _serializedList:
     - Key: 4
       Value:
-        <InputActionList>k__BackingField:
+        InputActionList:
         - {fileID: -6895326392597237420, guid: 4d10137657da3024299d0009262df938, type: 3}
         - {fileID: -1768394139479107878, guid: 4d10137657da3024299d0009262df938, type: 3}
         - {fileID: -433292269290284298, guid: 4d10137657da3024299d0009262df938, type: 3}

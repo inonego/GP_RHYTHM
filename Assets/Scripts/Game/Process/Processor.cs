@@ -6,16 +6,17 @@ using UnityEngine;
 
 public class Processor : MonoSingleton<Processor>
 {
-    #region 필드 변수
-
     public CurrentProcess Current { get; private set; }
 
     public double ProcessBeatDuration = 16.0;
+
+    #region 이벤트 및 델리게이트
 
     public ProcessEvent OnProcessEnded;
 
     public event InputProcessEvent OnInputProcess;
     public event NoteProcessEvent OnNoteProcess;
+    public event NoteJudgeEvent OnNoteJudge;
     public SpawnFunc NoteSpawnFunc;
 
     #endregion
@@ -43,6 +44,7 @@ public class Processor : MonoSingleton<Processor>
 
         Current.OnInputProcess   += OnInputProcess;
         Current.OnNoteProcess    += OnNoteProcess;
+        Current.OnNoteJudge      += OnNoteJudge;
         Current.NoteSpawnFunc     = NoteSpawnFunc;
 
         Current.Play();
